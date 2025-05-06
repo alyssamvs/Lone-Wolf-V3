@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Myth of the Lone Wolf</title>
+
+  <!-- ========== STYLES ========== -->
+  <style>
+    /* —————————————————————————————————————
+       GLOBAL RESET
+    ————————————————————————————————————— */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, sans-serif;
+      color: #333;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* —————————————————————————————————————
+       HERO (FULL-SCREEN TITLE)
+    ————————————————————————————————————— */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding: 0 1rem;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      max-width: 800px;
+    }
+
+    /* —————————————————————————————————————
+       SCROLLYTELLING WRAPPER
+    ————————————————————————————————————— */
+    .scrolly {
+      position: relative;
+      /* height will be set by JS automatically:
+         (# of steps) × 100vh */
+    }
+
+    /* 1) The sticky graphic */
+    .graphic {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      z-index: 1;
+    }
+
+    /* 2) The list of steps */
+    .steps {
+      position: relative;
+      z-index: 2;       /* above the graphic */
+    }
+    .step {
+      height: 100vh;        /* one viewport tall */
+      display: flex;
+      align-items: flex-end; /* caption at bottom */
+      justify-content: center;
+      padding-bottom: 20vh;  /* lift caption up */
+    }
+
+    /* 3) The caption box */
+    .caption {
+      max-width: 500px;
+      width: 80%;
+      padding: 1rem;
+      background: rgba(255,255,255,0.85);
+      border-radius: 4px;
+      text-align: center;
+
+      /* start hidden & down */
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    /* 4) When .is-active is added */
+    .step.is-active .caption {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <h1>The Myth of the Lone Wolf</h1>
+  </section>
+
+  <!-- ========== SCROLLYTELLING ========== -->
+  <section class="scrolly">
+    <!-- A) Sticky background image -->
+    <div class="graphic" id="graphic"></div>
+
+    <!-- B) Steps that drive the story -->
+    <div class="steps">
+      <!-- STEP 1: appears when its top hits 0% (top of viewport) -->
+      <div class="step" data-offset="0">
+        <div class="caption">
+          On May 14, 2022, Payton Gendron opened fire at shoppers inside a Tops Friendly supermarket in Buffalo.
+        </div>
+      </div>
+
+      <!-- STEP 2: default offset = 0.5 (middle of viewport) -->
+      <div class="step">
+        <div class="caption">
+          He was wearing body armour and livestreamed on Twitch; 10 African-Americans were killed, 3 wounded.
+        </div>
+      </div>
+
+      <!-- STEP 3: enters/exits at 20% down → clears before image unpins -->
+      <div class="step" data-offset="0.2">
+        <div class="caption">
+          He was only 18 years old.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== OPTIONAL OUTRO ========== -->
+  <section class="hero">
+    <h1>Beyond the Myth</h1>
+    <p>The lone-wolf narrative persists despite being a misconception. Wolves thrive in packs, not isolation.</p>
+  </section>
+
+  <!-- ========== SCRIPTS ========== -->
+  <!-- 1) Polyfill for old browsers -->
+  <script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+  <!-- 2) Scrollama UMD bundle -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/3.2.0/scrollama.min.js"></script>
+  <!-- 3) Your custom setup -->
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 1) Grab the graphic & all steps
+    const graphic = document.getElementById("graphic");
+    const steps   = document.querySelectorAll(".step");
+
+    // 2) Auto‐size the .scrolly container:
+    //    (# of steps) × 100vh ensures each step gets exactly one viewport scroll.
+    const scrolly = document.querySelector(".scrolly");
+    scrolly.style.height = `${steps.length * 100}vh`;
+
+    // 3) Initialize Scrollama
+    const scroller = scrollama();
+    scroller
+      .setup({
+        step: ".step",               // watch every step
+        offset: el => (
+          // per-step override, or default to 0.5
+          parseFloat(el.dataset.offset) || 0.5
+        ),
+        debug: true                  // show green line + dots while tuning
+      })
+      .onStepEnter(({ element, index }) => {
+        // 4) Change the background image on the FIRST step only
+        //    (or you could drive multiple images via data-img)
+        if (index === 0) {
+          graphic.style.backgroundImage = "url('Assets/tops-supermarket.webp')";
+        }
+        // add the “active” class to trigger the fade/slide
+        element.classList.add("is-active");
+      })
+      .onStepExit(({ element }) => {
+        element.classList.remove("is-active");
+      });
+
+    // 5) Recompute on resize
+    window.addEventListener("resize", scroller.resize);
+  });
+  </script>
+</body>
+</html>

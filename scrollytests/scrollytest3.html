@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Myth of the Lone Wolf</title>
+  <style>
+
+/* CSS SECTION */
+
+/* Hero section */
+
+.hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background-color: #000;
+      color: white;
+      padding: 0 1rem;
+    }
+
+.hero h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      max-width: 800px;
+    }
+
+/* make your background “stick” */
+.bg-image {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.bg-section {
+  position: relative;
+  height: 300vh; /* 3 steps × 100vh each */
+}
+
+/* steps sit on top of it */
+.step {
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20vh;
+}
+
+/* initial (hidden) caption state */
+.caption-box {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  background: rgba(255,255,255,0.8);
+  padding: 1rem;
+  border-radius: 4px;
+  max-width: 500px;
+}
+
+/* visible state when Scrollama adds .is-active */
+.step.is-active .caption-box {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.steps-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+  </style>
+  
+<!-- HTML SECTION -->
+
+</head>
+<body>
+  
+<!-- Hero/Title Section -->
+
+  <section class="hero">
+    <h1>The Myth of the Lone Wolf</h1>
+  </section>
+
+<!-- SCROLLY -->
+
+<section class="bg-section" id="section1">
+    <div class="bg-image"
+         style="background-image: url('Assets/tops-supermarket.webp');">
+    </div>
+  
+    <div class="steps-container">
+      <!-- FIRST caption: offset="0" → fires when step top hits VERY top of viewport -->
+      <div class="step" data-offset="0">
+        <div class="caption-box">
+          On May 14, 2022 Payton Gendron … opened fire at shoppers inside a Tops …
+        </div>
+      </div>
+  
+      <!-- MIDDLE caption: default offset 0.5 (middle of screen) -->
+      <div class="step">
+        <div class="caption-box">
+          He was wearing body-armour … 10 people, all African-American, were killed.
+        </div>
+      </div>
+  
+      <!-- LAST caption: offset="0.2" → exits early, so it’s gone before background unpins -->
+      <div class="step" data-offset="0.2">
+        <div class="caption-box">
+          He was 18 years old.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-section" id="section2">
+    <div class="bg-image"
+         style="background-image: url('Assets/oklahoma.png');">
+    </div>
+  
+    <div class="steps-container">
+      <!-- FIRST caption: offset="0" → fires when step top hits VERY top of viewport -->
+      <div class="step" data-offset="0">
+        <div class="caption-box">
+          On May 14, 2022 Payton Gendron … opened fire at shoppers inside a Tops …
+        </div>
+      </div>
+  
+      <!-- MIDDLE caption: default offset 0.5 (middle of screen) -->
+      <div class="step">
+        <div class="caption-box">
+          He was wearing body-armour … 10 people, all African-American, were killed.
+        </div>
+      </div>
+  
+      <!-- LAST caption: offset="0.2" → exits early, so it’s gone before background unpins -->
+      <div class="step" data-offset="0.2">
+        <div class="caption-box">
+          He was 18 years old.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-section" id="section3">
+    <div class="bg-image"
+         style="background-image: url('Assets/tops-supermarket.webp');">
+    </div>
+  
+    <div class="steps-container">
+      <!-- FIRST caption: offset="0" → fires when step top hits VERY top of viewport -->
+      <div class="step" data-offset="0">
+        <div class="caption-box">
+          On May 14, 2022 Payton Gendron … opened fire at shoppers inside a Tops …
+        </div>
+      </div>
+  
+      <!-- MIDDLE caption: default offset 0.5 (middle of screen) -->
+      <div class="step">
+        <div class="caption-box">
+          He was wearing body-armour … 10 people, all African-American, were killed.
+        </div>
+      </div>
+  
+      <!-- LAST caption: offset="0.2" → exits early, so it’s gone before background unpins -->
+      <div class="step" data-offset="0.2">
+        <div class="caption-box">
+          He was 18 years old.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- SCRIPTS -->
+<script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/3.2.0/scrollama.min.js"></script>
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  // 1) Create the scroller
+  const scroller = scrollama();
+
+  // 2) Set it up:
+  scroller.setup({
+    step: ".step",   // watch every .step element
+    offset: 0.5,     // default trigger at 50% down the viewport
+    debug: false     // set true if you want the green trigger line
+    // no need for a custom offset function—Scrollama will read each
+    // element’s data-offset attribute if you’ve set one
+  })
+  // 3) When a step “enters,” light up its caption
+  .onStepEnter(response => {
+    response.element.classList.add("is-active");
+  })
+  // 4) When it “exits,” turn it off again
+  .onStepExit(response => {
+    response.element.classList.remove("is-active");
+  });
+
+  // 5) Recalculate positions on resize
+  window.addEventListener("resize", scroller.resize);
+});
+</script>
+
+
+</script>
+</body>
+</html>

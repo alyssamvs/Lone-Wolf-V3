@@ -1,0 +1,57 @@
+
+
+
+/* reset & full-height */
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: sans-serif;
+    overflow-x: hidden;
+  }
+  
+  /* full-screen background */
+  #bg {
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out;
+    z-index: -1;
+  }
+  
+  /* scrolling container */
+  .content {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 6rem) 1rem;
+    scroll-snap-type: y mandatory; /* optional */
+  }
+  
+  /* each step box */
+  .step {
+    /* min-height: 20vh; */               
+    max-width: 20vw;
+    margin: 0 auto 100vh;            /* space between captions */
+    padding: 2rem;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    text-align: center;
+  
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+    will-change: opacity, transform;
+  
+    scroll-snap-align: start;       /* optional */
+  }
+  
+  .step.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* only for the very first caption */
+.step:first-of-type {
+    margin-top: 100vh;
+  }

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Scrolly with D3 + Images</title>
+  <style>
+    body { margin:0; font-family:sans-serif; }
+    .container { display: flex; }
+    .graphic {
+      position: sticky;
+      top: 0;
+      width: 50%;
+      height: 100vh;
+      background: #f7f7f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .text {
+      width: 50%;
+      padding: 2rem;
+    }
+    .step {
+      margin: 0 0 200px;
+      opacity: 0.2;
+      transition: opacity .3s;
+    }
+    .step.active { opacity: 1; }
+    /* hide both chart & image by default */
+    #chart-svg, #graphic-img { display: none; width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="graphic">
+    <!-- your D3 chart goes here -->
+    <svg id="chart-svg"></svg>
+    <!-- we'll swap this image in/out -->
+    <picture id="graphic-img">
+      <source type="image/webp" srcset="">
+      <img src="" alt="Scroll-triggered graphic">
+    </picture>
+  </div>
+
+  <div class="text">
+    <div class="step" data-type="image" data-webp="scene1.webp" data-fallback="scene1.png">
+      <h2>Step 1: Show image #1</h2>
+      <p>Some explanatory copy about this image.</p>
+    </div>
+    <div class="step" data-type="chart" data-chart="chart1">
+      <h2>Step 2: Draw chart</h2>
+      <p>Now we switch to a D3 chart.</p>
+    </div>
+    <div class="step" data-type="image" data-webp="scene2.webp" data-fallback="scene2.png">
+      <h2>Step 3: Show image #2</h2>
+      <p>Some more copy about the next image.</p>
+    </div>
+    <!-- …etc… -->
+  </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver"></script>
+<script>
+  const steps = document.querySelectorAll('.step');
+  const chart = d3.select('#chart-svg');
+  const pic   = document.getElementById('graphic-img');
+  const source = pic.querySelector('source');
+  const img    = pic.querySelector('img');
+
+  // stub: draw your chart1
+  function drawChart1() {
+    chart.selectAll('*').remove();
+    // …your D3 code here…
+  }
+
+  function updateGraphic(stepEl) {
+    const type = stepEl.dataset.type;
+    if (type === 'image') {
+      // hide chart
+      chart.style('display', 'none');
+      // swap in the right image
+      source.srcset   = `images/${stepEl.dataset.webp}`;
+      img.src         = `images/${stepEl.dataset.fallback}`;
+      pic.style.display = 'block';
+    } else if (type === 'chart') {
+      // hide image
+      pic.style.display = 'none';
+      // show chart
+      chart.style('display', 'block');
+      if (stepEl.dataset.chart === 'chart1') drawChart1();
+      // you can add more chart types here
+    }
+  }
+
+  // IntersectionObserver to detect active step
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        steps.forEach(s => s.classList.remove('active'));
+        e.target.classList.add('active');
+        updateGraphic(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  steps.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

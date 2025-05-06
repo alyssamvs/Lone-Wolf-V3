@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>The Myth of the Lone Wolf</title>
+  <style>
+    /* =============================================
+       GLOBAL RESET
+    ============================================= */
+    html, body {
+      margin: 0; padding: 0;
+      font-family: system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* =============================================
+       CONTAINER (auto-sized by JS)
+    ============================================= */
+    .container {
+      position: relative;
+      /* height will be set in JS: (#steps × 100vh) */
+    }
+
+    /* =============================================
+       STICKY BACKGROUND
+    ============================================= */
+    .graphic {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      z-index: 1;
+      /* initial image (can be overridden per‐step) */
+      background-image: url('Assets/tops-supermarket.webp');
+    }
+
+    /* =============================================
+       OVERLAY FOR CAPTIONS
+    ============================================= */
+    .overlay {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 20vh;  /* lift captions above bottom */
+      pointer-events: none;  /* clicks pass through */
+      z-index: 2;
+    }
+    .caption {
+      max-width: 500px;
+      width: 80%;
+      background: rgba(255,255,255,0.85);
+      padding: 1rem;
+      border-radius: 4px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .step.is-active .caption {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =============================================
+       STEP BLOCKS (drive the scrolling)
+    ============================================= */
+    .step {
+      height: 100vh;        /* one viewport tall */
+      display: flex;        /* to keep .caption flexed */
+      align-items: flex-end;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Scrollytelling wrapper -->
+  <div class="container">
+
+    <!-- 1) The sticky background -->
+    <div class="graphic" id="graphic"></div>
+
+    <!-- 2) The sticky overlay where captions appear -->
+    <div class="overlay"></div>
+
+    <!-- 3) Your steps: add/remove as you like -->
+    <div class="step" data-img="Assets/tops-supermarket.webp" data-text="On May 14, 2022…opened fire at shoppers inside a Tops Friendly supermarket.">
+      <!-- empty: caption injected via JS -->
+    </div>
+
+    <div class="step" data-text="He was wearing body armour…10 people, all African-American, were killed.">
+    </div>
+
+    <div class="step" data-text="He was 18 years old.">
+    </div>
+
+    <div class="step" data-img="Assets/oklahoma.png" data-text="A wolf pack operates like a family unit, with clear leadership…">
+    </div>
+
+    <div class="step" data-text="Communication between pack members is sophisticated…">
+    </div>
+
+    <div class="step" data-img="https://picsum.photos/1600/900?random=3" data-text="Even when wolves leave their packs, they’re seeking to start new families.">
+    </div>
+
+    <div class="step" data-text="The social networks of wolf packs reveal complex hierarchies…">
+    </div>
+
+  </div>
+
+  <!-- Polyfill + Scrollama -->
+  <script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/3.2.0/scrollama.min.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const graphic = document.getElementById("graphic");
+    const overlay = document.querySelector(".overlay");
+    const steps   = document.querySelectorAll(".step");
+    const container = document.querySelector(".container");
+
+    // 1) Auto-size container: one viewport per step
+    container.style.height = `${steps.length * 100}vh`;
+
+    // 2) Inject & toggle captions with Scrollama
+    const scroller = scrollama();
+    scroller.setup({
+      step: ".step",
+      offset: 0.5,        // default trigger at mid-screen
+      debug: false        // set true to see trigger markers
+    })
+    .onStepEnter(({ element, index }) => {
+      // 2a) Swap background if this step has data-img
+      if (element.dataset.img) {
+        graphic.style.backgroundImage = `url('${element.dataset.img}')`;
+      }
+      // 2b) Create a caption div and inject text
+      overlay.innerHTML = `<div class="caption">${element.dataset.text || ""}</div>`;
+      // 2c) Mark this step active (triggers fade-in)
+      element.classList.add("is-active");
+    })
+    .onStepExit(({ element }) => {
+      // remove active so the caption fades out
+      element.classList.remove("is-active");
+    });
+
+    // 3) Re-calc on resize
+    window.addEventListener("resize", scroller.resize);
+  });
+  </script>
+</body>
+</html>

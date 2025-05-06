@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Myth of the Lone Wolf</title>
+  <style>
+    /* Basic reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Hero section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background-color: #000;
+      color: white;
+      padding: 0 1rem;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      max-width: 800px;
+    }
+
+    /* Background section container */
+    .bg-section {
+      position: relative;
+      height: 400vh; /* Make each section tall enough for multiple captions */
+    }
+
+    /* Background image */
+    .bg-image {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      z-index: 1;
+    }
+
+    /* Steps container */
+    .steps-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    /* Individual step */
+    .step {
+      height: 100vh; /* Each step is full height */
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 20vh;
+    }
+
+    /* Caption box */
+    .caption-box {
+      width: 80%;
+      max-width: 500px;
+      padding: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(-50px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    /* Active step styling */
+    .step.is-active .caption-box {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Outro section */
+    .outro {
+      padding: 5rem 2rem;
+      background: white;
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .outro h2 {
+      margin-bottom: 1.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .caption-box {
+        width: 90%;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero/Title Section -->
+  <section class="hero">
+    <h1>The Myth of the Lone Wolf</h1>
+  </section>
+   <div class="spacer" style="height: 100vh;"></div>
+
+
+  <!-- First Background Section -->
+  <section class="bg-section" id="section1">
+    <!-- Sticky background that stays visible while scrolling through this section -->
+    <div class="bg-image" style="background-image: url('Assets/tops-supermarket.webp');"></div>
+    
+    <!-- Absolutely positioned container that holds scrolling steps -->
+    <div class="steps-container">
+      <!-- Step 1 -->
+      <div class="step" data-step="1">
+        <div class="caption-box">
+          On May 14, 2022 Payton Gendron, clad in military fatigues, opened fire at shoppers inside a Tops Friendly supermarket, in Buffalo, New York.
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" data-step="2">
+        <div class="caption-box">
+          He was wearing body armour, and a camera connected to the livestream site Twitch. 10 people, all African-American, were killed, and 3 were wounded.
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" data-step="3">
+        <div class="caption-box">
+          He was 18 years old.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Second Background Section -->
+  <section class="bg-section" id="section2">
+    <div class="bg-image" style="background-image: url('Assets/oklahoma.png');"></div>
+    
+    <div class="steps-container">
+      <!-- Step 4 -->
+      <div class="step" data-step="4">
+        <div class="caption-box">
+          A wolf pack operates like a family unit, with clear leadership and organized hunting strategies that require cooperation.
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step" data-step="5">
+        <div class="caption-box">
+          Communication between pack members is sophisticated, involving body language, scent marking, and a range of vocalizations.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Third Background Section -->
+  <section class="bg-section" id="section3">
+    <div class="bg-image" style="background-image: url('https://picsum.photos/1600/900?random=3');"></div>
+    
+    <div class="steps-container">
+      <!-- Step 6 -->
+      <div class="step" data-step="6">
+        <div class="caption-box">
+          Even when wolves do leave their packs, they're typically seeking to start new families, not to live in isolation.
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step" data-step="7">
+        <div class="caption-box">
+          The social networks of wolf packs reveal complex relationships and hierarchies that have evolved over millennia.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Outro Section -->
+  <section class="outro">
+    <h2>Beyond the Myth</h2>
+    <p>The "lone wolf" narrative persists in our culture despite being largely a misconception. Understanding the true social nature of wolves helps us appreciate their remarkable adaptations and the importance of community for survival in challenging environments.</p>
+    <p>As we continue to study these fascinating creatures, we discover more about their complex social dynamics and the critical role they play in maintaining ecological balance.</p>
+  </section>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
+  <script>
+    // Initialize scrollama instances - one for each background section
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all sections
+      const sections = document.querySelectorAll('.bg-section');
+      
+      // For each section, create a scrollama instance
+      sections.forEach(section => {
+        // Get all steps in this section
+        const steps = section.querySelectorAll('.step');
+        
+        // Only set up scrollama if there are steps
+        if (steps.length > 0) {
+          // Create scroller
+          const scroller = scrollama();
+          
+          // Set up the scroller
+          scroller
+            .setup({
+              step: steps,
+              offset: 0.4,  // Trigger when step is 50% in viewport
+              debug: false
+            })
+            .onStepEnter(response => {
+              // Add active class to the current step
+              response.element.classList.add('is-active');
+            })
+            .onStepExit(response => {
+              // Remove active class from the step
+              response.element.classList.remove('is-active');
+            });
+            
+          // Handle resize
+          window.addEventListener('resize', scroller.resize);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
