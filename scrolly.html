@@ -7,20 +7,13 @@
 </head>
 <body>
 
-<!-- HERO TITLE (full-page) -->
+  <!-- Background “scroller”: -->
+  <div id="bg-wrapper">
+    <div id="bg-scroller"></div>
+  </div>
 
-<div></div>
-  
-<!-- fixed background container -->
-  <div id="bg"></div>
-
-<!-- scrolling content -->
-
-<!-- Divided in sections -->
-
-<div class="content">
-
-<!-- Section 1: uses bg1.jpg for all its steps -->
+  <!-- Your scrolling captions: -->
+  <div class="content">
 
     <section class="section" data-bg="https://picsum.photos/1600/900?random=3">
       <div class="step">
@@ -37,8 +30,6 @@
       </div>
     </section>
 
-<!-- Section 2: switches to bg2.jpg -->
-
     <section class="section" data-bg="https://picsum.photos/1600/900?random=4">
       <div class="step">
         <h2>Caption 4</h2>
@@ -50,23 +41,18 @@
       </div>
     </section>
 
-<!-- Section 3: switches to bg3.jpg -->
-
     <section class="section" data-bg="https://picsum.photos/1600/900?random=5">
-        <div class="step">
-          <h2>Caption 4</h2>
-          <p>Now we switch to background #3.</p>
-        </div>
-        <div class="step">
-          <h2>Caption 5</h2>
-          <p>Still background #3.</p>
-        </div>
-      </section>
+      <div class="step">
+        <h2>Caption 6</h2>
+        <p>Now we switch to background #3.</p>
+      </div>
+      <div class="step">
+        <h2>Caption 7</h2>
+        <p>Still background #3.</p>
+      </div>
+    </section>
 
-
-    </div>
-
-
+  </div>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver"></script>
   <script src="scrolly.js"></script>
