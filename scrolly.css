@@ -1,4 +1,4 @@
-/* reset + full-height */
+/* Reset */
 html, body {
   margin: 0;
   padding: 0;
@@ -7,31 +7,34 @@ html, body {
   overflow-x: hidden;
 }
 
-/* wrapper + scroller for backgrounds */
+/* Background container */
 #bg-wrapper {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   z-index: -1;
 }
+
+/* Smooth scrolling background */
 #bg-scroller {
   height: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-  will-change: transform;
-}
-.bg-layer {
-  width: 100%; 
-  height: 100vh;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  transform: scale(1.05); /* Slight oversize for smoother parallax */
-  transition: transform 0.8s ease;
+  transform: translateY(0);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
-/* your scrolling container */
+/* Background images */
+.bg-layer {
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Content container */
 .content {
   position: relative;
   max-width: 600px;
@@ -39,43 +42,30 @@ html, body {
   padding: 2rem 1rem;
 }
 
-/* section styling */
+/* Section styling */
 .section {
-  min-height: 90vh; /* Give sections room to breathe */
-  padding: 5vh 0;
-  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
-/* each caption "step" takes up space but doesn't force a full viewport */
+/* Step styling */
 .step {
-  margin: 30vh auto;
+  margin: 20vh 0;
   max-width: 400px;
   padding: 2rem;
   background: rgba(255,255,255,0.85);
   border-radius: 8px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-  will-change: opacity, transform;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
+/* Visible step */
 .step.is-visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Optional visual enhancements */
-.step h2 {
-  margin-top: 0;
-  color: #333;
-}
-.step p {
-  line-height: 1.6;
-}
-
-/* Make sure last section has enough room at the bottom */
-.section:last-child {
-  margin-bottom: 30vh;
 }

@@ -3,78 +3,57 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Myth of the Lone Wolf</title>
+  <title>Simple Scrollytelling</title>
   <link rel="stylesheet" href="scrolly.css">
 </head>
 <body>
-
-  <!-- Background "scroller": -->
+  <!-- Fixed background container -->
   <div id="bg-wrapper">
-    <div id="bg-scroller"></div>
+    <div id="bg-scroller">
+      <!-- Background images will be added by JavaScript -->
+    </div>
   </div>
 
-  <!-- Your scrolling content: -->
+  <!-- Scrolling content -->
   <div class="content">
-    <header style="height: 100vh; display: flex; align-items: center; justify-content: center;">
-      <div class="intro" style="text-align: center; padding: 2rem; background: rgba(255,255,255,0.9); border-radius: 8px;">
-        <h1>The Myth of the Lone Wolf</h1>
-        <p>A scrollytelling exploration of how predators actually behave in the wild.</p>
-        <p style="font-style: italic;">↓ Scroll to begin ↓</p>
+    <section class="section" data-bg="https://picsum.photos/1600/900?random=1">
+      <div class="step">
+        <h2>First Caption</h2>
+        <p>This is the first section with the first background image.</p>
       </div>
-    </header>
+      <div class="step">
+        <h2>Second Caption</h2>
+        <p>Still on the first background image.</p>
+      </div>
+      <div class="step">
+        <h2>Third Caption</h2>
+        <p>Last caption with the first background.</p>
+      </div>
+    </section>
+
+    <section class="section" data-bg="https://picsum.photos/1600/900?random=2">
+      <div class="step">
+        <h2>Fourth Caption</h2>
+        <p>Now we're on the second background image.</p>
+      </div>
+      <div class="step">
+        <h2>Fifth Caption</h2>
+        <p>Still on the second background.</p>
+      </div>
+    </section>
 
     <section class="section" data-bg="https://picsum.photos/1600/900?random=3">
       <div class="step">
-        <h2>Pack Animals</h2>
-        <p>Contrary to popular belief, wolves are highly social animals that live and hunt in packs.</p>
+        <h2>Sixth Caption</h2>
+        <p>Now we're on the third background image.</p>
       </div>
       <div class="step">
-        <h2>Family Structure</h2>
-        <p>A wolf pack typically consists of a breeding pair and their offspring from multiple years.</p>
-      </div>
-      <div class="step">
-        <h2>Complex Communication</h2>
-        <p>Wolves use howling, body language, and scent marking to communicate within their pack.</p>
+        <h2>Seventh Caption</h2>
+        <p>Final caption on the third background.</p>
       </div>
     </section>
-
-    <section class="section" data-bg="https://picsum.photos/1600/900?random=4">
-      <div class="step">
-        <h2>The "Lone Wolf" Misconception</h2>
-        <p>When wolves appear solitary, they're usually young adults seeking new territory or a mate.</p>
-      </div>
-      <div class="step">
-        <h2>Temporary Solitude</h2>
-        <p>This period of isolation is typically temporary, as wolves naturally seek to form or join packs.</p>
-      </div>
-    </section>
-
-    <section class="section" data-bg="https://picsum.photos/1600/900?random=5">
-      <div class="step">
-        <h2>Cooperation Benefits</h2>
-        <p>Pack hunting allows wolves to take down larger prey and defend territory more effectively.</p>
-      </div>
-      <div class="step">
-        <h2>Cultural Impact</h2>
-        <p>Despite scientific evidence, the lone wolf metaphor persists in our cultural imagination.</p>
-      </div>
-      <div class="step">
-        <h2>Conservation Implications</h2>
-        <p>Understanding wolf social dynamics is crucial for conservation efforts and human-wolf coexistence.</p>
-      </div>
-    </section>
-
-    <footer style="height: 50vh; display: flex; align-items: center; justify-content: center;">
-      <div style="text-align: center; padding: 2rem; background: rgba(255,255,255,0.9); border-radius: 8px;">
-        <h2>About This Story</h2>
-        <p>Created as an example of scrollytelling techniques.</p>
-        <p>Images from Lorem Picsum. Text is placeholder content.</p>
-      </div>
-    </footer>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver"></script>
   <script src="scrolly.js"></script>
 </body>
 </html>
