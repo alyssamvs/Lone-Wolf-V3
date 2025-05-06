@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+          svg {
+            width: 100%;
+            height: 100vh;
+        }
+
+        line {
+            stroke: #ccc;
+            marker-end: url(#arrowhead);
+        }
+
+        text {
+            font-family: "Helvetica Neue", Helvetica, sans-serif;
+            fill: rgb(0, 0, 0);
+            font-size: 14px;
+        }
+
+        circle {
+            stroke: #fff;
+            fill-opacity: .5;
+            transition: fill-opacity .2s ease-out;
+        }
+
+        .nodeGeometry {
+            cursor: pointer;
+        }
+
+        .nodeGeometry:hover circle {
+            fill-opacity: .8;
+        }
+
+        .tooltip {
+            position: fixed;
+            left: 100px;
+            top: 150px;
+            text-align: left;
+            width: 200px;
+            height: auto;
+            padding: 8px;
+            font: 12px sans-serif;
+            background: rgb(255, 87, 15);
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div id="content">
+  <svg width="800" height="600">
+    <defs>
+        <marker id="arrowhead" viewBox="0 -5 10 10" refX="10" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,-5L10,0L0,5" fill="#ccc"></path>
+        </marker>
+    </defs>
+    <g id="main">
+        <g class="links"></g>
+        <g class="nodes"></g>
+    </g>
+  </svg>
+</div>
+
+<div class="tooltip"></div> 
+
+<script>
+
+       // Create a div for the tooltip
+       const tooltip = d3.select(".tooltip");
+
+    // Set the width and height of the SVG based on the window size
+    const width = window.innerWidth,
+          height = window.innerHeight;
+
+    // Load JSON and CSV data
+    d3.json("./Data/lone_actor_dict.json").then(tooltipData => {
+        d3.csv("./Data/sourcetargetaccel.csv").then(links => {
+            // Process nodes from links data
+            let nodes = links.map(link => [link.source, link.target])
+                .flat()
+                .filter((e, n, l) => l.indexOf(e) === n)
+                .map(node => ({
+                    id: node,
+                    degree: links.filter(link => link.source === node || link.target === node).length,
+                    wheel: links.filter(link => link.source === node || link.target === node)
+                                .map(e => [e.source, e.target])
+                                .flat()
+                                .filter((e, n, l) => l.indexOf(e) === n)
+                }));
+
+            // Scale for node size based on degree
+            const logOfRelevance = d3.scaleLog().domain(d3.extent(nodes, d => +d.degree)).range([10, 50]);
+
+            // Initialize force simulation
+            const simulation = d3.forceSimulation(nodes)
+                .force('charge', d3.forceManyBody().strength(-200))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('link', d3.forceLink(links).id(d => d.id).distance(200))
+                .force('collision', d3.forceCollide().radius(d => logOfRelevance(d.degree) + 10))
+                .on('tick', ticked);
+
+            // Function to update link positions
+            function updateLinks() {
+                d3.select('.links')
+                    .selectAll('.link')
+                    .data(links)
+                    .join('line')
+                    .classed('link', true)
+                    .attr('x1', d => getLinkCoordinates(d.source, d.target).x1)
+                    .attr('y1', d => getLinkCoordinates(d.source, d.target).y1)
+                    .attr('x2', d => getLinkCoordinates(d.source, d.target).x2)
+                    .attr('y2', d => getLinkCoordinates(d.source, d.target).y2);
+            }
+
+            // Function to update node positions
+            function updateNodes() {
+                d3.select('.nodes')
+                    .selectAll('g.nodeGeometry')
+                    .attr("transform", d => `translate(${d.x},${d.y})`)
+                    .each(function(d) {
+                        const node = d3.select(this);
+                        const text = node.select("text");
+                        text.attr("transform", null)
+                            .attr("x", logOfRelevance(d.degree) + 5)
+                            .attr("text-anchor", "middle");
+                    });
+            }
+
+            // Function called on each tick of the simulation
+            function ticked() {
+                updateLinks();
+                updateNodes();
+            }
+
+            // Function to get the coordinates for link ends
+            function getLinkCoordinates(source, target) {
+                const dx = target.x - source.x;
+                const dy = target.y - source.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const radiusSource = logOfRelevance(source.degree);
+                const radiusTarget = logOfRelevance(target.degree);
+
+                return {
+                    x1: source.x + (dx * radiusSource) / distance,
+                    y1: source.y + (dy * radiusSource) / distance,
+                    x2: target.x - (dx * radiusTarget) / distance,
+                    y2: target.y - (dy * radiusTarget) / distance
+                };
+            }
+
+            // Create node elements with tooltip data
+            const nodeGeometry = d3.select('.nodes')
+                .selectAll('g.nodeGeometry')
+                .data(nodes)
+                .join('g')
+                .classed('nodeGeometry', true)
+                .on("click", function(e, d) {
+                    e.stopPropagation();
+                    d3.selectAll(".nodeGeometry")
+                        .select("circle")
+                        .style("stroke", "white");
+                    d3.select(this).select("circle").style("stroke", "black");
+                    d3.selectAll(".nodeGeometry").each(function(dNode) {
+                        d3.select(this).style("opacity", d.wheel.includes(dNode.id) ? 1 : 0.20);
+                    });
+                    d3.selectAll(".link").each(function(dLink) {
+                        d3.select(this).style("opacity", d.wheel.includes(dLink.source.id) && d.wheel.includes(dLink.target.id) ? 1 : 0);
+                    });
+               
+                const formattedContent = Object.entries(tooltipData[d.id])
+                        .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                        .join("<br/>");
+                    tooltip.style("opacity", 1)
+                        .html(formattedContent)
+                        .style("display", "block"); // Show the tooltip
+                        
+                    })
+                    // Event listener to hide tooltip when clicking outside nodes or tooltip
+    document.addEventListener("click", function(event) {
+        const clickedElement = event.target;
+        const isNode = clickedElement.closest('.nodeGeometry');
+        const isTooltip = clickedElement.closest('.tooltip');
+        
+        if (!isNode && !isTooltip) {
+            // Hide tooltip
+            tooltip.style("opacity", 0);
+            tooltip.style("display", "none"); // Hide the tooltip
+        }})
+                // .on("mouseover", function(e, d) {
+                //     const tooltipContent = tooltipData[d.id];
+                //     if (tooltipContent) {
+                //         const formattedContent = Object.entries(tooltipContent)
+                //             .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                //             .join("<br/>");
+                //         tooltip.style("opacity", 1)
+                //             .html(formattedContent)
+                //             .style("left", (e.pageX + 10) + "px")
+                //             .style("top", (e.pageY - 28) + "px");
+                //     } else {
+                //         tooltip.style("opacity", 1)
+                //             .html("No information available")
+                //             .style("left", (e.pageX + 10) + "px")
+                //             .style("top", (e.pageY - 28) + "px");
+                //     }
+                // })
+                // .on("mouseout", function() {
+                //     tooltip.style("opacity", 0);
+                // });
+
+            // Append circles to nodes
+            nodeGeometry.append("circle").attr('r', d => logOfRelevance(d.degree))
+                .attr("fill", '#FF570F');
+
+            // Append text labels to nodes
+            nodeGeometry.append("text")
+                .attr("dy", ".35em")
+                .text(d => d.id);
+
+            // Add zoom and pan functionality
+            let svg = d3.select("#content");
+            svg = svg.call(d3.zoom().on("zoom", zoomed)).select("g");
+
+            function zoomed(e) {
+                const { x, y, k } = e.transform;
+                svg.attr("transform", `translate(${x},${y}) scale(${k})`);
+            }
+
+            // Reset styles on click outside nodes
+            d3.select("body").on("click", () => {
+                d3.selectAll(".link").style("opacity", 1);
+                d3.selectAll(".nodeGeometry")
+                    .style("opacity", 1)
+                    .select("circle")
+                    .style("stroke", "white");
+            });
+        });
+    });
+</script>
+</body>
+</html>
