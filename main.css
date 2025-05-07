@@ -19,6 +19,10 @@
         overflow-x: hidden;        
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
 /*INTRO  ✅ */ 
 
       /* Hero section */
@@ -63,7 +67,8 @@
         top: 0;
         width: 100vw;
         height: 100vh;
-        background-size: cover;
+        background-size: contain;
+        background-repeat: no-repeat;
         background-position: center;
         z-index: -1;
       }
@@ -88,9 +93,7 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
-      /* .caption :last-child {
-        margin-bottom: 80vh;
-      } */
+      
 
 
 /*
@@ -116,6 +119,13 @@ FOOTER SECTION  ✅
         margin-bottom: 1.5rem;
         max-width: 50vw;
               }
+
+      .links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+      }
 
 /*
 --------------------
