@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Scrollytelling Template</title>
+  <style>
+    /*----------------------------------------------
+     * BASIC RESET
+     * Clear default margins and set up the document
+     *----------------------------------------------*/
+
+    /* html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+     */
+    /*----------------------------------------------
+     * BACKGROUND SETUP
+     * This creates the fixed background system
+     *----------------------------------------------*/
+    /* Fixed container that doesn't move when scrolling */
+
+    #bg-wrapper {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1; /* Places background behind content */
+    }
+    
+    /* Container that holds and moves background images */
+    #bg-scroller {
+      /* This transition creates the smooth sliding effect between backgrounds */
+      transition: transform 1.5s ease;
+    }
+    
+    /* Each individual background image */
+    .bg-layer {
+      width: 100%; 
+      height: 100vh; /* Full viewport height */
+      background-size: cover; /* Makes image cover entire area */
+      background-position: center; /* Centers the image */
+    }
+    
+    /*----------------------------------------------
+     * CONTENT SETUP
+     * Styles for the scrolling content
+     *----------------------------------------------*/
+    /* Container for all scrolling content */
+
+    .content {
+      max-width: 400px; /* Constrains width for readability */
+      margin: 0 auto; /* Centers content horizontally */
+      padding: 1rem;
+      justify-content: center;
+    }
+    
+    /* Each text caption block */
+    .step {
+      /* Large vertical margin creates separation between captions */
+      /* This is key to ensuring only one caption is visible at a time */
+
+      margin: 100vh 0; 
+      
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.85); /* Semi-transparent background */
+      border-radius: 6px;
+      
+      /* Initial invisible state, positioned below final position */
+      opacity: 0;
+      transform: translateY(50px); /* Starts 30px below final position */
+      
+      /* Smooth transition for fade-in and movement */
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    
+    /* Active state applied by JavaScript when caption is visible */
+    .step.is-visible {
+      opacity: 1;
+      transform: translateY(0); /* Moves up to final position */
+    }
+  </style>
+
+
+
+
+
+
+
+
+</head>
+<body>
+  <!-- 
+  BACKGROUND STRUCTURE
+  This contains the fixed backgrounds that will change as user scrolls
+  -->
+  <div id="bg-wrapper">
+    <div id="bg-scroller">
+      <!-- Background images will be added here by JavaScript -->
+    </div>
+  </div>
+
+  <!-- 
+  SCROLLING CONTENT
+  All the text that will scroll over the backgrounds
+  -->
+  <div class="content">
+    <!-- 
+    SECTION 1 
+    Each section corresponds to one background image
+    data-bg attribute defines the image URL for this section
+    -->
+    <section class="section" data-bg="https://picsum.photos/1600/900?random=1">
+      <!-- First caption for this section -->
+      <div class="step">
+        <h2>First Caption</h2>
+        <p>This caption appears with the first background.</p>
+      </div>
+      
+      <!-- Second caption, still on first background -->
+      <div class="step">
+        <h2>Second Caption</h2>
+        <p>Still on the first background.</p>
+      </div>
+    </section>
+
+    <!-- 
+    SECTION 2
+    When captions in this section become visible,
+    the background will change to this image
+    -->
+    <section class="section" data-bg="https://picsum.photos/1600/900?random=2">
+      <div class="step">
+        <h2>Third Caption</h2>
+        <p>Now we're on the second background.</p>
+      </div>
+      
+      <div class="step">
+        <h2>Fourth Caption</h2>
+        <p>Still on the second background.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+
+
+    /* 
+     * SCROLLYTELLING SCRIPT
+     * This handles all the interactive behaviors
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+//----------------------------------------------
+// SETUP - Get references to key elements
+//----------------------------------------------
+
+// The container that will move to show different backgrounds
+      const scroller = document.getElementById('bg-scroller');
+      
+      // All the sections (each with its own background)
+      const sections = document.querySelectorAll('.section');
+      
+      // All the text captions that will appear/disappear
+      const steps = document.querySelectorAll('.step');
+      
+      // Keep track of which step is currently visible
+      let currentStep = null;
+      
+//----------------------------------------------
+// CREATE BACKGROUND LAYERS
+// This builds the background images from the data-bg attributes
+//----------------------------------------------
+
+      sections.forEach(section => {
+        // Create a new div for each background
+        const layer = document.createElement('div');
+        layer.className = 'bg-layer';
+        
+        // Set the background image from the section's data-bg attribute
+        layer.style.backgroundImage = `url('${section.dataset.bg}')`;
+        
+        // Add this background to the scroller
+        scroller.appendChild(layer);
+      });
+      
+//----------------------------------------------
+// INTERSECTION OBSERVER
+// This watches when captions enter/exit the viewport
+//----------------------------------------------
+
+      const observer = new IntersectionObserver(entries => {
+        // Process each entry (caption) that has changed visibility state
+        entries.forEach(entry => {
+          // Only run this code when a caption becomes visible
+          if (entry.isIntersecting) {
+            // Hide previous caption if there was one
+            if (currentStep) currentStep.classList.remove('is-visible');
+            
+            // Show current caption
+            entry.target.classList.add('is-visible');
+            currentStep = entry.target;
+            
+            // Find which section this caption belongs to
+            const section = entry.target.closest('.section');
+            const sectionIndex = Array.from(sections).indexOf(section);
+            
+            // Move background to show the correct image
+            // Each image is 100vh tall, so we multiply by section index
+            scroller.style.transform = `translateY(-${sectionIndex * 100}vh)`;
+          }
+        });
+      }, {
+        // Threshold 0.5 means caption must be 50% visible to trigger
+        threshold: 0.5
+      });
+      
+      // Start observing all captions
+      steps.forEach(step => observer.observe(step));
+    });
+  </script>
+</body>
+</html>
