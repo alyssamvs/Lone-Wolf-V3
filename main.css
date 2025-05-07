@@ -5,14 +5,13 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        border: 2px solid red;
+        /* border: 2px solid red; */
         font-family: Palatino Linotype, "Book Antiqua", Palatino, serif;
 
       }
   
       body {
-        overflow-x: hidden;
-        
+        overflow-x: hidden;        
       }
 
 /*INTRO  ✅ */ 
@@ -39,50 +38,44 @@
   
 
 /*STICKY*/
+
 /* Scrolling sections */
 
 /* Section with scrolling content and sticky element */
 
-      .content-lane {
-        width: 50vw; /* Wider for more content space */
-        min-height: 300vh; /* Tall enough for multiple captions */
-        margin: 0 auto;
-        padding: 0 20vw; /* Centered */
+      .section {
         position: relative;
+        height: 300vh; /* 3x viewport height */
       }
-
-/* Sticky element that holds background image */
 
       .sticky-bg {
-        width: 100vw;
-        height: 100vh;
         position: sticky;
         top: 0;
-        /* left: 50%;
-        transform: translateX(-50%); Center the background */
-        z-index: -1; /* Behind the captions */
-        transition: background-image 0.8s ease; /* Smooth bg transitions */
+        width: 100vw;
+        height: 100vh;
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
       }
 
-/* Captions that scroll over the sticky element */
+      .captions {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 300vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 20vh 0;
+      }
 
       .caption {
         width: 350px;
-        margin: 40vh auto; /* Vertical spacing between captions */
         padding: 1.5rem;
         background: rgba(255, 255, 255, 0.85);
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        opacity: 0;
-        transform: translateY(30px);
-        transition: opacity 0.4s ease, transform 0.4s ease;
-      }
-
-/* Active caption state */
-
-      .caption.is-visible {
-        opacity: 1;
-        transform: translateY(0);
       }
 
 /* FOOTER SECTION  ✅ */
@@ -91,7 +84,6 @@
         padding: 5rem 2rem;
         background: rgb(0, 0, 0);
         width: 100vw;
-        margin: 0 auto;
         color: white;
         align-items: center;
         justify-content: center;

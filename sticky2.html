@@ -4,32 +4,119 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>The Myth of the Lone Wolf</title>
-  <link rel="stylesheet" href="main.css" />
-  <script defer src="main.js"></script>
+  <style>
+    /* Basic reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Palatino Linotype, "Book Antiqua", Palatino, serif;
+    }
+    
+    body {
+      overflow-x: hidden;
+    }
+    
+    /* Hero section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background-color: #000;
+      color: white;
+      padding: 0 1rem;
+    }
+    
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      max-width: 800px;
+    }
+    
+    /* Scrollytelling section */
+    .section {
+      position: relative;
+      height: 300vh; /* 3x viewport height */
+    }
+    
+    .sticky-bg {
+      position: sticky;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+    }
+    
+    .captions {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 300vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20vh 0;
+    }
+    
+    .caption {
+      width: 350px;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Outro section */
+    .outro {
+      padding: 5rem 2rem;
+      background: #000;
+      width: 100%;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .outro h2, .outro p {
+      margin-bottom: 1.5rem;
+      max-width: 50vw;
+      text-align: center;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .caption {
+        width: 90%;
+        padding: 1rem;
+      }
+      
+      .outro h2, .outro p {
+        max-width: 90vw;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-<!-- ---------------------
-    ----------------------
-    HERO TITLE (full-page) 
---------------------------
----------------------------->
-
-<div class="hero">
+  <!-- Hero section -->
+  <div class="hero">
     <h1>The Myth of the Lone Wolf</h1>
     <h3><em>The copycat effect in far-right terror</em></h3>
-</div>
-
-<!-- ---------------------
-    ----------------------
-    SCROLLY SECTION 
---------------------------
----------------------------->
-
-
-<!-- SECTION 1 -->
-
+  </div>
+  
+  <!-- Section 1 -->
   <div class="section">
     <div class="sticky-bg" style="background-image: url('https://picsum.photos/1600/900?random=1')"></div>
     <div class="captions">
@@ -47,8 +134,7 @@
     </div>
   </div>
   
-<!-- SECTION 2 -->  
-
+  <!-- Section 2 -->
   <div class="section">
     <div class="sticky-bg" style="background-image: url('https://picsum.photos/1600/900?random=2')"></div>
     <div class="captions">
@@ -65,13 +151,11 @@
       </div>
     </div>
   </div>
-
-  <!-- OUTRO SECTION -->
-
+  
+  <!-- Outro section -->
   <div class="outro">
     <h2>Beyond the Myth</h2>
     <p>Rather than dismiss these perpetrators as mentally ill outliers, authorities should place increased emphasis on the monitoring of online communications from known extremist sites and forums, as this has shown effective in preventing attacks, such as with the Finland Kankaanpää terror plot.</p>
   </div>
-
 </body>
 </html>
