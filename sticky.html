@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Scrollytelling</title>
+    <style>
+        /* Basic reset */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        
+        /* Full-height sections */
+        .cover {
+            width: 100vw;
+            height: 100vh;
+            background-color: #26f260;
+        }
+        
+        /* Section with scrolling content and sticky element */
+        .content-lane {
+            width: 60vw; /* Wider for more content space */
+            min-height: 300vh; /* Tall enough for multiple captions */
+            padding: 0 20vw; /* Centered */
+            position: relative;
+        }
+        
+        /* Sticky element that holds background image */
+        .sticky-bg {
+            width: 100vw;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            left: 0;
+            margin-left: -20vw; /* Offset the parent padding */
+            z-index: -1; /* Behind the captions */
+            transition: background-image 0.8s ease; /* Smooth bg transitions */
+        }
+        
+        /* Captions that scroll over the sticky element */
+        .caption {
+            width: 350px;
+            margin: 40vh auto; /* Vertical spacing between captions */
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        /* Active caption state */
+        .caption.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro screen -->
+    <div class="cover">
+        <h1 style="text-align: center; padding-top: 40vh;">Scroll to begin</h1>
+    </div>
+    
+    <!-- First scrolly section -->
+    <div class="content-lane" data-bg="https://picsum.photos/1600/900?random=1">
+        <!-- Sticky background element -->
+        <div class="sticky-bg" style="background-image: url('https://picsum.photos/1600/900?random=1'); background-size: cover;"></div>
+        
+        <!-- Scrolling captions -->
+        <div class="caption">
+            <h2>First Caption</h2>
+            <p>This caption appears as you scroll down.</p>
+        </div>
+        
+        <div class="caption">
+            <h2>Second Caption</h2>
+            <p>Keep scrolling to see the captions change.</p>
+        </div>
+        
+        <div class="caption">
+            <h2>Third Caption</h2>
+            <p>The background stays fixed while captions scroll.</p>
+        </div>
+    </div>
+    
+    <!-- Second scrolly section with different background -->
+    <div class="content-lane" data-bg="https://picsum.photos/1600/900?random=2">
+        <!-- Sticky background element -->
+        <div class="sticky-bg" style="background-image: url('https://picsum.photos/1600/900?random=2'); background-size: cover;"></div>
+        
+        <!-- Scrolling captions -->
+        <div class="caption">
+            <h2>Fourth Caption</h2>
+            <p>Now we're on a different background.</p>
+        </div>
+        
+        <div class="caption">
+            <h2>Fifth Caption</h2>
+            <p>The sticky element makes this much simpler!</p>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="cover" style="background-color: blue;">
+        <h1 style="text-align: center; padding-top: 40vh; color: white;">The End</h1>
+    </div>
+    
+    <script>
+        // Minimal JavaScript to handle caption visibility
+        document.addEventListener('DOMContentLoaded', () => {
+            const captions = document.querySelectorAll('.caption');
+            let currentCaption = null;
+            
+            // Create IntersectionObserver to watch captions
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Hide previous caption
+                        if (currentCaption) currentCaption.classList.remove('is-visible');
+                        
+                        // Show current caption
+                        entry.target.classList.add('is-visible');
+                        currentCaption = entry.target;
+                    }
+                });
+            }, {threshold: 0.5});
+            
+            // Start observing all captions
+            captions.forEach(caption => observer.observe(caption));
+        });
+    </script>
+</body>
+</html>
