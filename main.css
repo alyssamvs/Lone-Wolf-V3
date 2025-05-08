@@ -12,11 +12,13 @@
         box-sizing: border-box;
         /* border: 2px solid red; */
         font-family: Palatino Linotype, "Book Antiqua", Palatino, serif;
+        
 
       }
   
       body {
-        overflow-x: hidden;        
+        overflow-x: hidden;
+        background-color: #FFFAEC;        
       }
 
       html {
@@ -135,18 +137,42 @@ RESPONSIVENESS  ✅
 --------------------*/     
 
 
+/*IMAGES*/
+
+      .image_full{
+        display:block;
+      }
+
+      .image_mobile{
+      display:none;
+      }
+
+      @media (max-width: 640px) and (min-width: 320px){
+      .image_full{
+        display:none;
+      }
+
+      .image_mobile{
+        display:block;
+      }
+      }
+
+      .cover-bg {
+        background-size: cover !important;
+      }
+
+/*TEXT*/
+
       @media (max-width: 768px) {
         .hero h1 {
           font-size: 2.5rem;
         }
         
         .caption {
-          width: 90%;
-          padding: 1rem;
+          width: 250px;
         }
 
-        .captions {
-          width: 90%;
-          padding: 1rem;
+        .sticky-bg {
+          background-size: cover;
         }
       }
