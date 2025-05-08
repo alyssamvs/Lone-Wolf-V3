@@ -27,6 +27,24 @@
 
 /*INTRO  ✅ */ 
 
+      /* Progress bar container */
+      .progress-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px; /* Height of the progress bar */
+        background: transparent;
+        z-index: 1000; /* Make sure it's above other elements */
+      }
+
+      /* The actual progress bar */
+      .progress-bar {
+        height: 100%;
+        background-color: #000; /* Black color */
+        width: 0%; /* Initial width */
+      }
+
       /* Hero section */
       .hero {
         height: 100vh;
