@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV to JSON Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 400px;
+    }
+    button {
+      padding: 10px 15px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    #output {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSV to JSON Converter</h1>
+  
+  <div>
+    <p>Select your CSV file:</p>
+    <input type="file" id="csvFile" accept=".csv">
+    <button id="convertBtn">Convert to JSON</button>
+    <button id="downloadBtn" style="display: none;">Download JSON</button>
+  </div>
+  
+  <div id="output">
+    <h3>Result:</h3>
+    <pre id="jsonOutput">Select a CSV file and click 'Convert' to see the result</pre>
+  </div>
+  
+  <script>
+    document.getElementById('convertBtn').addEventListener('click', function() {
+      const fileInput = document.getElementById('csvFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Please select a CSV file first.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const csvData = e.target.result;
+        
+        // Parse CSV using PapaParse
+        Papa.parse(csvData, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            // Process the CSV data
+            const processedData = processAccelerationismData(results.data);
+            
+            // Display the JSON
+            const jsonStr = JSON.stringify(processedData, null, 2);
+            document.getElementById('jsonOutput').textContent = jsonStr;
+            
+            // Enable download button
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.style.display = 'inline-block';
+            downloadBtn.addEventListener('click', function() {
+              downloadJSON(processedData, 'accelerationism_events.json');
+            });
+          },
+          error: function(error) {
+            console.error('Error parsing CSV:', error);
+            document.getElementById('jsonOutput').textContent = 'Error parsing CSV: ' + error.message;
+          }
+        });
+      };
+      
+      reader.readAsText(file);
+    });
+    
+    function processAccelerationismData(rawData) {
+      const events = [];
+      
+      rawData.forEach(d => {
+        // Extract year from date
+        let year = null;
+        if (d.Date) {
+          const yearMatch = d.Date.match(/\b(19|20)\d{2}\b/);
+          year = yearMatch ? parseInt(yearMatch[0]) : null;
+        }
+        
+        if (year) {
+          events.push({
+            year: year,
+            date: d.Date || "",
+            killed: isNaN(+d["# killed"]) ? 0 : +d["# killed"],
+            injured: isNaN(+d["# injured"]) ? 0 : +d["# injured"],
+            location_country: d["Location: country"] || "",
+            location_state: d["Location: state"] || "",
+            location_city: d["Location: city"] || "",
+            ideology: d["Ideological affiliation"] || "",
+            method: d["Criminal method"] || "",
+            description: d["Short narrative"] || ""
+          });
+        }
+      });
+      
+      return events;
+    }
+    
+    function downloadJSON(data, filename) {
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

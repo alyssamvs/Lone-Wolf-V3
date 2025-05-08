@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accelerationism Events Visualization</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    
+    .visualization-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .viz-section {
+      margin-bottom: 100vh;
+      position: relative;
+    }
+    
+    .sticky-viz {
+      position: sticky;
+      top: 50px;
+      height: 600px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 10;
+      max-width: 300px;
+    }
+    
+    .year-label {
+      text-anchor: middle;
+      font-size: 14px;
+      font-weight: bold;
+      fill: #555;
+    }
+    
+    .count-label {
+      text-anchor: middle;
+      font-size: 12px;
+      fill: #777;
+    }
+    
+    .year-center {
+      fill: #2c3e50;
+      stroke: #fff;
+      stroke-width: 2;
+    }
+    
+    .casualty-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    
+    .casualty-status.visible {
+      opacity: 1;
+    }
+    
+    .headline {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      margin: 40px 0 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="visualization-container">
+    <div class="headline">Accelerationism Events</div>
+    
+    <!-- Sticky Visualization Container -->
+    <div class="sticky-viz">
+      <div id="visualization"></div>
+      <div class="casualty-status" id="casualtyStatus">
+        Now showing: <span id="casualtyMode">Event frequency over time</span>
+      </div>
+    </div>
+    
+    <!-- Scrolling Sections -->
+    <div class="viz-section" id="section1"></div>
+    <div class="viz-section" id="section2"></div>
+    <div class="viz-section" id="section3"></div>
+    <div class="viz-section" id="section4"></div>
+    <div class="viz-section" id="section5"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up dimensions
+      const width = 800;
+      const height = 500;
+      
+      // Create SVG
+      const svg = d3.select("#visualization")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(50, 30)");
+      
+      // Create tooltip
+      const tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+      
+      // Load the JSON data
+      d3.json("Data/accelerationism_events.json").then(function(events) {
+        console.log("JSON loaded successfully!", events.length, "events");
+        
+        // If no events, use fallback data
+        if (!events || events.length === 0) {
+          console.log("No events found, using fallback data");
+          events = createFallbackData();
+        }
+        
+        // Set up visualization
+        createVisualization(events);
+      }).catch(function(error) {
+        console.error("Error loading JSON:", error);
+        
+        // Create fallback data
+        const fallbackData = createFallbackData();
+        createVisualization(fallbackData);
+      });
+      
+      // Create a fallback dataset 
+      function createFallbackData() {
+        const yearCounts = {
+          "1995": 1, "1997": 3, "1999": 3, "2001": 1, "2003": 1, "2011": 9,
+          "2013": 2, "2014": 3, "2016": 2, "2017": 4, "2018": 14, "2019": 27,
+          "2020": 59, "2021": 85, "2022": 33, "2023": 18
+        };
+        
+        const events = [];
+        
+        for (const [year, count] of Object.entries(yearCounts)) {
+          for (let i = 0; i < count; i++) {
+            events.push({
+              year: parseInt(year),
+              killed: Math.floor(Math.random() * 5),
+              injured: Math.floor(Math.random() * 10),
+              location_country: "Sample Location",
+              ideology: "Sample Ideology",
+              method: "Sample Method",
+              description: `Sample event ${i+1} from ${year}`
+            });
+          }
+        }
+        
+        // Set a few high-casualty events
+        if (events.length > 10) {
+          events[0].killed = 168;
+          events[0].injured = 684;
+          events[0].description = "High-casualty event (Oklahoma City)";
+          
+          events[5].killed = 77;
+          events[5].injured = 319;
+          events[5].description = "High-casualty event (Norway)";
+          
+          events[10].killed = 51;
+          events[10].injured = 40;
+          events[10].description = "High-casualty event (Christchurch)";
+        }
+        
+        return events;
+      }
+      
+      // Create the visualization
+      function createVisualization(events) {
+        // Group events by year
+        const eventsByYear = d3.group(events, d => d.year);
+        const years = Array.from(eventsByYear.keys()).sort((a, b) => a - b);
+        
+        // Create year positions
+        const yearPositions = [];
+        const yearsPerRow = Math.min(6, Math.ceil(years.length / 2));
+        const rows = Math.ceil(years.length / yearsPerRow);
+        
+        years.forEach((year, i) => {
+          const row = Math.floor(i / yearsPerRow);
+          const col = i % yearsPerRow;
+          
+          const cellWidth = (width - 100) / yearsPerRow;
+          const cellHeight = (height - 80) / rows;
+          
+          yearPositions.push({
+            year: year,
+            x: col * cellWidth + cellWidth / 2,
+            y: row * cellHeight + cellHeight / 2,
+            count: eventsByYear.get(year).length
+          });
+        });
+        
+        // Add year center points
+        svg.selectAll(".year-center")
+          .data(yearPositions)
+          .enter()
+          .append("circle")
+          .attr("class", "year-center")
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          .attr("r", 4);
+        
+        // Add year labels
+        svg.selectAll(".year-label")
+          .data(yearPositions)
+          .enter()
+          .append("text")
+          .attr("class", "year-label")
+          .attr("x", d => d.x)
+          .attr("y", d => d.y + 20)
+          .attr("text-anchor", "middle")
+          .text(d => d.year);
+        
+        // Add count labels
+        svg.selectAll(".count-label")
+          .data(yearPositions)
+          .enter()
+          .append("text")
+          .attr("class", "count-label")
+          .attr("x", d => d.x)
+          .attr("y", d => d.y + 35)
+          .attr("text-anchor", "middle")
+          .text(d => `${d.count} events`);
+        
+        // Create event data
+        const flatEvents = [];
+        eventsByYear.forEach((yearEvents, year) => {
+          const yearPosition = yearPositions.find(pos => pos.year === year);
+          
+          yearEvents.forEach(event => {
+            flatEvents.push({
+              ...event,
+              yearCenter: yearPosition,
+              // Start with random positions
+              x: yearPosition.x + (Math.random() - 0.5) * 20,
+              y: yearPosition.y + (Math.random() - 0.5) * 20
+            });
+          });
+        });
+        
+        // Calculate casualty radius scale
+        const maxCasualties = d3.max(events, d => d.killed + d.injured);
+        const radiusScale = d3.scaleSqrt()
+          .domain([0, maxCasualties])
+          .range([4, 20]);
+        
+        // Create event circles
+        const eventCircles = svg.selectAll(".event")
+          .data(flatEvents)
+          .enter()
+          .append("circle")
+          .attr("class", "event")
+          .attr("r", 5)
+          .attr("fill", "#3498db")
+          .attr("opacity", 0.8)
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1)
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          .on("mouseover", function(event, d) {
+            // Highlight circle on hover
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr("stroke-width", 2)
+              .attr("opacity", 1);
+            
+            // Show tooltip
+            tooltip.transition()
+              .duration(200)
+              .style("opacity", 0.9);
+            
+            tooltip.html(`
+              <strong>Year:</strong> ${d.year}<br>
+              <strong>Location:</strong> ${d.location_country || d.location}<br>
+              <strong>Ideology:</strong> ${d.ideology}<br>
+              <strong>Method:</strong> ${d.method}<br>
+              <strong>Casualties:</strong> ${d.killed} killed, ${d.injured} injured<br>
+              <strong>Description:</strong> ${d.description}
+            `)
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 15) + "px");
+          })
+          .on("mouseout", function() {
+            // Reset circle appearance
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr("stroke-width", 1)
+              .attr("opacity", 0.8);
+            
+            // Hide tooltip
+            tooltip.transition()
+              .duration(500)
+              .style("opacity", 0);
+          });
+        
+        // Create force simulation
+        const simulation = d3.forceSimulation(flatEvents)
+          .force("x", d3.forceX(d => d.yearCenter.x).strength(0.2))
+          .force("y", d3.forceY(d => d.yearCenter.y).strength(0.2))
+          .force("charge", d3.forceManyBody().strength(-30))
+          .force("collide", d3.forceCollide(6).strength(0.8))
+          .on("tick", () => {
+            // Update positions on each tick
+            eventCircles
+              .attr("cx", d => d.x)
+              .attr("cy", d => d.y);
+          });
+        
+        // Set up scrolling behavior
+        const sections = document.querySelectorAll('.viz-section');
+        const casualtyStatus = document.getElementById('casualtyStatus');
+        const casualtyModeText = document.getElementById('casualtyMode');
+        
+        // Simple intersection observer
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const section = entry.target;
+              const sectionIndex = Array.from(sections).indexOf(section);
+              
+              handleTransition(sectionIndex);
+            }
+          });
+        }, { threshold: 0.5 });
+        
+        // Observe all sections
+        sections.forEach(section => {
+          observer.observe(section);
+        });
+        
+        // Handle section transitions
+        function handleTransition(sectionIndex) {
+          // Restart simulation
+          simulation.alpha(0.3).restart();
+          
+          if (sectionIndex <= 2) {
+            // Frequency view
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .attr("r", 5)
+              .attr("fill", "#3498db")
+              .style("opacity", 0.8);
+            
+            simulation.force("collide", d3.forceCollide(6).strength(0.8));
+            casualtyStatus.classList.remove('visible');
+            casualtyModeText.textContent = 'Event frequency over time';
+          } 
+          else if (sectionIndex === 3) {
+            // Casualty view
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .attr("r", d => radiusScale(d.killed + d.injured))
+              .attr("fill", d => {
+                if (d.killed > 10) return '#e74c3c';
+                if (d.killed > 0) return '#e67e22';
+                if (d.killed === 0 && d.injured > 0) return '#f1c40f';
+                return '#3498db';
+              });
+            
+            simulation.force("collide", d3.forceCollide(d => radiusScale(d.killed + d.injured) + 1).strength(0.8));
+            casualtyStatus.classList.add('visible');
+            casualtyModeText.textContent = 'Human impact (circle size = total casualties)';
+          }
+          else if (sectionIndex === 4) {
+            // High casualty focus
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .style("opacity", d => (d.killed + d.injured > 10) ? 1 : 0.3)
+              .attr("stroke-width", d => (d.killed + d.injured > 10) ? 2 : 1);
+            
+            casualtyStatus.classList.add('visible');
+            casualtyModeText.textContent = 'Focus on high-casualty events';
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

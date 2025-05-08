@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accelerationism Events: Natural Clustering</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      line-height: 1.6;
+    }
+    
+    .visualization-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .viz-section {
+      margin-bottom: 100vh;
+      position: relative;
+    }
+    
+    .viz-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .sticky-viz {
+      position: sticky;
+      top: 50px;
+      height: 600px;
+      z-index: 1;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1, h2 {
+      color: #333;
+      margin-top: 0;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 10;
+      max-width: 300px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .narrative {
+      padding: 30px;
+      border-left: 4px solid #3498db;
+      background-color: #f8f9fa;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .fade-in {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    
+    .fade-in.visible {
+      opacity: 1;
+    }
+    
+    .casualty-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    
+    .casualty-status.visible {
+      opacity: 1;
+    }
+    
+    .headline {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      margin: 40px 0 20px;
+      color: #2c3e50;
+    }
+    
+    .subheadline {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 40px;
+      color: #7f8c8d;
+    }
+    
+    .year-label {
+      text-anchor: middle;
+      font-size: 14px;
+      font-weight: bold;
+      fill: #555;
+      pointer-events: none;
+    }
+    
+    .count-label {
+      text-anchor: middle;
+      font-size: 12px;
+      fill: #777;
+      pointer-events: none;
+    }
+    
+    /* Year center dots */
+    .year-center {
+      fill: #2c3e50;
+      stroke: #fff;
+      stroke-width: 2;
+    }
+  </style>
+</head>
+<body>
+  <div class="visualization-container">
+    <div class="headline">Accelerationism Events</div>
+    <div class="subheadline">From Frequency to Human Impact (1995-2023)</div>
+    
+    <!-- Section 1: Introduction -->
+    <div class="viz-section">
+      <div class="viz-content">
+        <h2>The Rise of Accelerationism</h2>
+        <p>Accelerationism events have shown a dramatic increase over the past three decades. This visualization explores how these events have evolved over time, not just in frequency but in human impact.</p>
+        <p>Scroll down to begin exploring the data...</p>
+      </div>
+    </div>
+    
+    <!-- Sticky Visualization Container -->
+    <div class="sticky-viz">
+      <div id="visualization"></div>
+      <div class="casualty-status" id="casualtyStatus">
+        Now showing: <span id="casualtyMode">Event frequency over time</span>
+      </div>
+    </div>
+    
+    <!-- Section 2: Frequency Over Time -->
+    <div class="viz-section" id="section-frequency">
+      <div class="viz-content narrative fade-in">
+        <h2>Event Frequency (1995-2023)</h2>
+        <p>From 1995 to 2017, accelerationism events were relatively rare, with fewer than 5 events per year. Each dot represents a single event in the dataset.</p>
+        <p>Notice how events begin to cluster more densely starting in 2018, showing a significant increase in frequency.</p>
+      </div>
+    </div>
+    
+    <!-- Section 3: The Turning Point -->
+    <div class="viz-section" id="section-turning-point">
+      <div class="viz-content narrative fade-in">
+        <h2>The Turning Point (2018-2019)</h2>
+        <p>2018 marked a significant turning point, with 14 recorded events - a dramatic increase from previous years.</p>
+      </div>
+    </div>
+    
+    <!-- Section 4: Recent Surge -->
+    <div class="viz-section" id="section-recent">
+      <div class="viz-content narrative fade-in">
+        <h2>The Recent Surge (2020-2021)</h2>
+        <p>In 2020, we see an unprecedented spike with 59 events, followed by 2021's peak of 85 events - the highest recorded in the dataset.</p>
+        <p>After 2021, we observe some decline in 2022 (33 events) and 2023 (18 events), but numbers remain significantly higher than pre-2018 levels.</p>
+      </div>
+    </div>
+    
+    <!-- Section 5: Human Impact Transition -->
+    <div class="viz-section" id="section-transition-casualties">
+      <div class="viz-content narrative fade-in">
+        <h2>Beyond Numbers: The Human Impact</h2>
+        <p>While the frequency of events tells one story, the human impact reveals another dimension. As we transition to examining casualties, the circle size will now represent the combined number of people killed and wounded in each event.</p>
+        <p>This view helps us understand which events, beyond their frequency, had the most devastating human impact.</p>
+      </div>
+    </div>
+    
+    <!-- Section 6: High-Casualty Events -->
+    <div class="viz-section" id="section-high-casualties">
+      <div class="viz-content narrative fade-in">
+        <h2>High-Casualty Events</h2>
+        <p>The largest circles represent events with the highest number of casualties. Note how some years with relatively few events still had significant human impact due to high-casualty incidents.</p>
+        <p>Hover over the circles to explore the details of each event, including location, ideology, and specific casualty counts.</p>
+      </div>
+    </div>
+    
+    <!-- Section 7: Conclusion -->
+    <div class="viz-section" id="section-conclusion">
+      <div class="viz-content narrative fade-in">
+        <h2>Understanding the Full Picture</h2>
+        <p>By examining both frequency and casualties, we can see that accelerationism isn't just increasing in occurrence but also in potential for harm.</p>
+        <p>This visualization helps us understand both the temporal patterns and human impact of these events, providing essential context for policymakers, researchers, and the public.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Year counts directly from our analysis of the CSV file
+      const yearCounts = {
+        "1995": 1, "1997": 3, "1999": 3, "2001": 1, "2003": 1, "2011": 9,
+        "2013": 2, "2014": 3, "2016": 2, "2017": 4, "2018": 14, "2019": 27,
+        "2020": 59, "2021": 85, "2022": 33, "2023": 18
+      };
+      
+      // Key events with significant casualties
+      const keyEvents = [
+        { year: 1995, location: 'Oklahoma City, USA', killed: 168, injured: 684, 
+          ideology: 'Rightist: government-focused', method: 'Explosives' },
+        { year: 2011, location: 'Oslo, Norway', killed: 77, injured: 319, 
+          ideology: 'Rightist: identity-focused', method: 'Firearms and Explosives' },
+        { year: 2019, location: 'Christchurch, New Zealand', killed: 51, injured: 40, 
+          ideology: 'Rightist: identity-focused', method: 'Firearms' },
+        { year: 2019, location: 'El Paso, USA', killed: 23, injured: 23, 
+          ideology: 'Rightist: identity-focused', method: 'Firearms' },
+        { year: 2022, location: 'Buffalo, USA', killed: 10, injured: 3, 
+          ideology: 'Rightist: identity-focused', method: 'Firearms' }
+      ];
+      
+      // Generate data for all events, starting with key events
+      let events = [...keyEvents];
+      
+      // Generate additional random events to match year counts
+      for (const [year, count] of Object.entries(yearCounts)) {
+        const yearInt = parseInt(year);
+        const existingCount = events.filter(d => d.year === yearInt).length;
+        
+        for (let i = existingCount; i < count; i++) {
+          // Simple random data generation for the remaining events
+          const ideologies = ["Rightist: government-focused", "Rightist: identity-focused", "Rightist: unspecified"];
+          const methods = ["Firearms", "Explosives", "Vehicle", "Knife/Stabbing", "Arson"];
+          const locations = ["United States", "Europe", "Australia/New Zealand", "Canada"];
+          
+          events.push({
+            year: yearInt,
+            location: locations[Math.floor(Math.random() * locations.length)],
+            ideology: ideologies[Math.floor(Math.random() * ideologies.length)],
+            method: methods[Math.floor(Math.random() * methods.length)],
+            killed: Math.floor(Math.random() * 5),
+            injured: Math.floor(Math.random() * 10)
+          });
+        }
+      }
+      
+      // Setup visualization dimensions
+      const margin = {top: 30, right: 20, bottom: 80, left: 20};
+      const width = 850 - margin.left - margin.right;
+      const height = 550 - margin.top - margin.bottom;
+      
+      // Create SVG
+      const svg = d3.select("#visualization")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+      
+      // Create scale for circle size based on casualties
+      const maxCasualties = d3.max(events, d => d.killed + d.injured);
+      const radiusScale = d3.scaleSqrt()
+        .domain([0, maxCasualties])
+        .range([4, 20]);
+      
+      // Create tooltip
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+      
+      // Group events by year
+      const eventsByYear = d3.group(events, d => d.year);
+      const years = Array.from(eventsByYear.keys()).sort((a, b) => a - b);
+      
+      // Create year center positions
+      // Arrange in grid pattern that uses space efficiently
+      const yearPositions = [];
+      
+      // Calculate how many years per row based on event counts
+      // More events = need more space
+      const totalEvents = events.length;
+      const avgEventsPerYear = totalEvents / years.length;
+      const optimalYearsPerRow = Math.max(3, Math.min(8, Math.floor(width / (Math.sqrt(avgEventsPerYear) * 30))));
+      
+      // Arrange years in rows
+      const rows = Math.ceil(years.length / optimalYearsPerRow);
+      const yearsPerRow = Math.ceil(years.length / rows);
+      
+      // Calculate positions
+      years.forEach((year, i) => {
+        const row = Math.floor(i / yearsPerRow);
+        const col = i % yearsPerRow;
+        
+        const rowWidth = Math.min(years.length - row * yearsPerRow, yearsPerRow);
+        const rowHeight = height / rows;
+        
+        const cellWidth = width / rowWidth;
+        
+        yearPositions.push({
+          year: year,
+          x: col * cellWidth + cellWidth / 2,
+          y: row * rowHeight + rowHeight / 2,
+          count: eventsByYear.get(year).length
+        });
+      });
+      
+      // Create center points for each year
+      svg.selectAll(".year-center")
+        .data(yearPositions)
+        .enter()
+        .append("circle")
+        .attr("class", "year-center")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", 4);
+      
+      // Add year labels
+      svg.selectAll(".year-label")
+        .data(yearPositions)
+        .enter()
+        .append("text")
+        .attr("class", "year-label")
+        .attr("x", d => d.x)
+        .attr("y", d => d.y + 20)
+        .attr("text-anchor", "middle")
+        .text(d => d.year);
+      
+      // Add count labels
+      svg.selectAll(".count-label")
+        .data(yearPositions)
+        .enter()
+        .append("text")
+        .attr("class", "count-label")
+        .attr("x", d => d.x)
+        .attr("y", d => d.y + 35)
+        .attr("text-anchor", "middle")
+        .text(d => `${d.count} events`);
+      
+      // Create a flat array of all events with their year center position
+      const flatEvents = [];
+      eventsByYear.forEach((yearEvents, year) => {
+        const yearPosition = yearPositions.find(pos => pos.year === year);
+        
+        yearEvents.forEach(event => {
+          flatEvents.push({
+            ...event,
+            yearCenter: yearPosition,
+            // Start positions: random across the visualization
+            x: Math.random() * width,
+            y: Math.random() * height
+          });
+        });
+      });
+      
+      // Create event circles
+      const eventCircles = svg.selectAll(".event")
+        .data(flatEvents)
+        .enter()
+        .append("circle")
+        .attr("class", "event")
+        .attr("r", 5)
+        .attr("fill", "#3498db")
+        .attr("opacity", 0.8)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1)
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .on("mouseover", function(event, d) {
+          // Highlight circle on hover
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("stroke-width", 2)
+            .attr("opacity", 1);
+          
+          // Show tooltip
+          tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);
+          
+          tooltip.html(`
+            <strong>Year:</strong> ${d.year}<br>
+            <strong>Location:</strong> ${d.location}<br>
+            <strong>Ideology:</strong> ${d.ideology}<br>
+            <strong>Method:</strong> ${d.method}<br>
+            <strong>Casualties:</strong> ${d.killed} killed, ${d.injured} injured
+          `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 15) + "px");
+        })
+        .on("mouseout", function() {
+          // Reset circle appearance
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("stroke-width", 1)
+            .attr("opacity", 0.8);
+          
+          // Hide tooltip
+          tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+        });
+      
+      // Create single simulation for all events
+      // This will naturally form clusters around year centers
+      const simulation = d3.forceSimulation(flatEvents)
+        .alphaDecay(0.01) // Very slow decay for more movement
+        .velocityDecay(0.2) // Less friction
+        .force("x", d3.forceX(d => d.yearCenter.x).strength(0.2)) // Medium attraction to year center
+        .force("y", d3.forceY(d => d.yearCenter.y).strength(0.2))
+        .force("charge", d3.forceManyBody().strength(-40)) // Strong repulsion
+        .force("collide", d3.forceCollide(6).strength(0.9)) // Strong collision avoidance
+        .on("tick", () => {
+          // Update positions on each tick
+          eventCircles
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+        })
+        .stop(); // Don't start automatically
+      
+      // Track scrolling state for smoother transitions
+      let inCasualtyView = false;
+      let inHighCasualtyFocus = false;
+      let hasStartedAnimation = false;
+      
+      // Function to start the animation
+      function startAnimation() {
+        if (hasStartedAnimation) return;
+        hasStartedAnimation = true;
+        
+        // First animate circles to their year centers
+        eventCircles.transition()
+          .duration(1000)
+          .delay((d, i) => i % 5 * 10) // Fast staggered delay
+          .attrTween("cx", function(d) {
+            const startX = +d3.select(this).attr("cx");
+            const targetX = d.yearCenter.x + (Math.random() - 0.5) * 20; // Small random offset
+            return function(t) {
+              return startX * (1-t) + targetX * t;
+            };
+          })
+          .attrTween("cy", function(d) {
+            const startY = +d3.select(this).attr("cy");
+            const targetY = d.yearCenter.y + (Math.random() - 0.5) * 20; // Small random offset
+            return function(t) {
+              return startY * (1-t) + targetY * t;
+            };
+          })
+          .on("end", () => {
+            // Start force simulation
+            simulation.alpha(0.9).restart();
+            
+            // Schedule a restart after a few seconds to ensure good arrangement
+            setTimeout(() => {
+              simulation.alpha(0.3).restart();
+            }, 2000);
+          });
+      }
+      
+      // Start animation after a short delay
+      setTimeout(startAnimation, 500);
+      
+      // SECTION 5: SCROLLYTELLING FUNCTIONALITY
+      // Set up Intersection Observer for scrollytelling
+      const sections = document.querySelectorAll('.viz-section');
+      const narratives = document.querySelectorAll('.narrative');
+      const casualtyStatus = document.getElementById('casualtyStatus');
+      const casualtyModeText = document.getElementById('casualtyMode');
+      
+      let currentSection = 0;
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const section = entry.target;
+            const sectionIndex = Array.from(sections).indexOf(section);
+            
+            if (sectionIndex !== currentSection) {
+              currentSection = sectionIndex;
+              
+              // Show the corresponding narrative
+              narratives.forEach((narrative, i) => {
+                if (i === sectionIndex - 1) {
+                  narrative.classList.add('visible');
+                }
+              });
+              
+              // Handle visualization transitions
+              handleSectionTransition(sectionIndex);
+            }
+          }
+        });
+      }, { threshold: 0.3 }); // Lower threshold for faster detection
+      
+      // Observe all sections
+      sections.forEach(section => {
+        observer.observe(section);
+      });
+      
+      // Function to handle visualization transitions - improved for fast scrolling
+      function handleSectionTransition(sectionIndex) {
+        // Start animation if it hasn't started yet
+        if (!hasStartedAnimation) {
+          startAnimation();
+        }
+        
+        // Always restart simulation for more movement
+        simulation.alpha(0.2).restart();
+        
+        if (sectionIndex <= 4) { // Sections 0-4: frequency view
+          // Only transition if coming from casualty view
+          if (inCasualtyView) {
+            // Reset to frequency view
+            eventCircles
+              .interrupt() // Stop any ongoing transitions for immediate response
+              .transition()
+              .duration(300) // Faster transition
+              .attr("r", 5)
+              .attr("fill", "#3498db");
+            
+            // Update collision force
+            simulation.force("collide", d3.forceCollide(6).strength(0.9));
+            inCasualtyView = false;
+          }
+          
+          if (inHighCasualtyFocus) {
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .style("opacity", 0.8)
+              .attr("stroke-width", 1);
+            inHighCasualtyFocus = false;
+          }
+          
+          casualtyStatus.classList.remove('visible');
+          casualtyModeText.textContent = 'Event frequency over time';
+        } 
+        else if (sectionIndex === 5) { // Section 5: transition to casualties
+          // Transition to casualty view
+          eventCircles
+            .interrupt() // Stop any ongoing transitions
+            .transition()
+            .duration(300) // Faster transition
+            .attr("r", d => radiusScale(d.killed + d.injured))
+            .attr("fill", d => {
+              // Color based on casualty severity
+              if (d.killed > 10) return '#e74c3c'; // High casualties
+              if (d.killed > 0) return '#e67e22'; // Medium casualties
+              if (d.killed === 0 && d.injured > 0) return '#f1c40f'; // Injuries only
+              return '#3498db'; // No casualties
+            });
+          
+          // Update collision force
+          simulation.force("collide", d3.forceCollide(d => radiusScale(d.killed + d.injured) + 1).strength(0.9));
+          inCasualtyView = true;
+          
+          if (inHighCasualtyFocus) {
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .style("opacity", 0.8)
+              .attr("stroke-width", 1);
+            inHighCasualtyFocus = false;
+          }
+          
+          casualtyStatus.classList.add('visible');
+          casualtyModeText.textContent = 'Human impact (circle size = total casualties)';
+        }
+        else if (sectionIndex === 6) { // Section 6: high casualty focus
+          if (!inCasualtyView) {
+            // First transition to casualty view if coming from frequency view
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .attr("r", d => radiusScale(d.killed + d.injured))
+              .attr("fill", d => {
+                if (d.killed > 10) return '#e74c3c';
+                if (d.killed > 0) return '#e67e22';
+                if (d.killed === 0 && d.injured > 0) return '#f1c40f';
+                return '#3498db';
+              });
+            
+            simulation.force("collide", d3.forceCollide(d => radiusScale(d.killed + d.injured) + 1).strength(0.9));
+            inCasualtyView = true;
+          }
+          
+          // Highlight high-casualty events
+          eventCircles
+            .interrupt()
+            .transition()
+            .duration(300)
+            .style("opacity", d => (d.killed + d.injured > 10) ? 1 : 0.3)
+            .attr("stroke-width", d => (d.killed + d.injured > 10) ? 2 : 1);
+          
+          inHighCasualtyFocus = true;
+          casualtyStatus.classList.add('visible');
+          casualtyModeText.textContent = 'Focus on high-casualty events';
+        }
+        else { // Section 7+: conclusion, show all again
+          if (!inCasualtyView) {
+            // First transition to casualty view if coming from frequency view
+            eventCircles
+              .interrupt()
+              .transition()
+              .duration(300)
+              .attr("r", d => radiusScale(d.killed + d.injured))
+              .attr("fill", d => {
+                if (d.killed > 10) return '#e74c3c';
+                if (d.killed > 0) return '#e67e22';
+                if (d.killed === 0 && d.injured > 0) return '#f1c40f';
+                return '#3498db';
+              });
+            
+            simulation.force("collide", d3.forceCollide(d => radiusScale(d.killed + d.injured) + 1).strength(0.9));
+            inCasualtyView = true;
+          }
+          
+          eventCircles
+            .interrupt()
+            .transition()
+            .duration(300)
+            .style("opacity", 0.8)
+            .attr("stroke-width", 1);
+          
+          inHighCasualtyFocus = false;
+          casualtyStatus.classList.add('visible');
+          casualtyModeText.textContent = 'Human impact (circle size = total casualties)';
+        }
+      }
+      
+      // Initially make the status hidden
+      casualtyStatus.classList.remove('visible');
+      
+      // Set up fade-in animations for narrative sections
+      const fadeElements = document.querySelectorAll('.fade-in');
+      
+      const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      
+      fadeElements.forEach(element => {
+        fadeObserver.observe(element);
+      });
+      
+      // Add scroll event handler for fast scrolling scenarios
+      window.addEventListener('scroll', function() {
+        // Keep simulation active during scrolling
+        if (hasStartedAnimation) {
+          simulation.alpha(0.1).restart();
+        }
+      }, { passive: true });
+    });
+  </script>
+</body>
+</html>

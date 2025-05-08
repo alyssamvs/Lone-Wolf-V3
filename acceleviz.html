@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accelerationism Events Visualization</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      color: #333;
+    }
+    
+    .description {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #666;
+    }
+    
+    #visualization {
+      width: 100%;
+      overflow-x: auto;
+    }
+    
+    .legend {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      font-size: 14px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+    }
+    
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 10;
+      max-width: 300px;
+    }
+
+    .axis-label {
+      font-size: 12px;
+      fill: #555;
+    }
+
+    .axis line, .axis path {
+      stroke: #ddd;
+    }
+
+    .notes {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .year-divider {
+      stroke: #ddd;
+      stroke-dasharray: 4,4;
+    }
+
+    .trend-line {
+      stroke: #ff5555;
+      stroke-width: 2;
+      stroke-dasharray: 5,5;
+      fill: none;
+    }
+
+    /* Controls for user interaction */
+    .controls {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 8px 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #2980b9;
+    }
+    
+    button.active {
+      background: #2c3e50;
+    }
+
+    /* For dropdown select controls */
+    select {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background: white;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Accelerationism Events (1995-2023)</h1>
+    <div class="description">
+      Individual dots represent each event in the dataset, plotted by year
+    </div>
+    
+    <div class="controls">
+      <button id="viewYearDistribution" class="active">Year Distribution</button>
+      <button id="viewMonthPattern">Monthly Patterns</button>
+      <select id="colorBySelect">
+        <option value="default">Default Color</option>
+        <option value="ideologicalAffiliation">Ideological Affiliation</option>
+        <option value="criminalMethod">Criminal Method</option>
+        <option value="location">Location (Country)</option>
+      </select>
+    </div>
+    
+    <div id="visualization">
+      <div class="loading">Loading visualization...</div>
+    </div>
+    
+    <div class="legend" id="legend"></div>
+    
+    <div class="notes">
+      <p><strong>About this visualization:</strong> Each dot represents a single accelerationism event in the dataset. The horizontal position shows the year when the event occurred, while the vertical scattering is added to avoid overlapping dots in years with many events.</p>
+      <p><strong>Interaction:</strong> Hover over any dot to see details about that specific event. Use the buttons above to switch between different views.</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Global variables
+      let data = [];
+      let svg, tooltip;
+      let width, height, margin;
+      let currentView = 'yearDistribution';
+      let colorBy = 'default';
+      let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+      
+      // Initialize the visualization
+      async function init() {
+        try {
+          // Set up dimensions
+          margin = { top: 40, right: 30, bottom: 60, left: 60 };
+          width = 800 - margin.left - margin.right;
+          height = 500 - margin.top - margin.bottom;
+          
+          // Create SVG container
+          svg = d3.select('#visualization')
+            .html('') // Clear loading message
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+          
+          // Create tooltip
+          tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'tooltip')
+            .style('opacity', 0);
+          
+          // Load and parse the data
+          await loadData();
+          
+          // Set up event handlers
+          setupEventHandlers();
+          
+          // Initial render
+          renderYearDistribution();
+        } catch (error) {
+          console.error('Error initializing visualization:', error);
+          d3.select('#visualization')
+            .html('<div style="color: red; text-align: center; padding: 20px;">Error loading visualization. Please check the console for details.</div>');
+        }
+      }
+      
+      // Load and parse the CSV data
+      async function loadData() {
+        return new Promise((resolve, reject) => {
+          // Use window.fs to read the CSV file (works in this environment)
+          if (typeof window.fs !== 'undefined' && window.fs.readFile) {
+            window.fs.readFile('Accelerationism Events Data Set_AC  ALL CASES 265.csv', { encoding: 'utf8' })
+              .then(fileData => {
+                parseData(fileData);
+                resolve();
+              })
+              .catch(reject);
+          } else {
+            // Fallback (won't work in this specific environment but included for completeness)
+            d3.csv('Accelerationism Events Data Set_AC  ALL CASES 265.csv')
+              .then(csvData => {
+                data = csvData;
+                processData();
+                resolve();
+              })
+              .catch(reject);
+          }
+        });
+      }
+      
+      // Parse the CSV data
+      function parseData(fileData) {
+        const parsedData = Papa.parse(fileData, {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: true
+        });
+        
+        data = parsedData.data;
+        processData();
+      }
+      
+      // Process and clean the data
+      function processData() {
+        data = data.filter(d => d.Date); // Filter out rows without dates
+        
+        // Extract date information
+        data.forEach(d => {
+          // Extract year
+          const yearMatch = d.Date.match(/\b(19|20)\d{2}\b/);
+          d.year = yearMatch ? parseInt(yearMatch[0]) : null;
+          
+          // Try to extract month
+          let monthMatch = d.Date.match(/(\d{1,2})\/\d{1,2}\/\d{4}/);
+          if (monthMatch) {
+            d.month = parseInt(monthMatch[1]);
+          } else {
+            // Try alternative format
+            monthMatch = d.Date.match(/\d{4}-(\d{1,2})-\d{1,2}/);
+            d.month = monthMatch ? parseInt(monthMatch[1]) : null;
+          }
+          
+          // Clean up other fields
+          d.ideologicalAffiliation = d["Ideological affiliation"] || "Unknown";
+          d.criminalMethod = d["Criminal method"] || "Unknown";
+          d.location = d["Location: country"] || "Unknown";
+          d.killed = d["# killed"] || 0;
+          d.injured = parseInt(d["# injured"]) || 0;
+          d.shortDescription = d["Short narrative"] || "No description available";
+        });
+        
+        // Filter out entries without a valid year
+        data = data.filter(d => d.year);
+      }
+      
+      // Set up event handlers for controls
+      function setupEventHandlers() {
+        // View toggle buttons
+        d3.select('#viewYearDistribution').on('click', function() {
+          d3.selectAll('.controls button').classed('active', false);
+          d3.select(this).classed('active', true);
+          currentView = 'yearDistribution';
+          renderYearDistribution();
+        });
+        
+        d3.select('#viewMonthPattern').on('click', function() {
+          d3.selectAll('.controls button').classed('active', false);
+          d3.select(this).classed('active', true);
+          currentView = 'monthPattern';
+          renderMonthPattern();
+        });
+        
+        // Color by dropdown
+        d3.select('#colorBySelect').on('change', function() {
+          colorBy = this.value;
+          if (currentView === 'yearDistribution') {
+            renderYearDistribution();
+          } else {
+            renderMonthPattern();
+          }
+        });
+      }
+      
+      // Render the year distribution view
+      function renderYearDistribution() {
+        // Clear SVG
+        svg.selectAll('*').remove();
+        
+        // Set up scales
+        const years = data.map(d => d.year);
+        const minYear = d3.min(years);
+        const maxYear = d3.max(years);
+        
+        const xScale = d3.scaleLinear()
+          .domain([minYear - 0.5, maxYear + 0.5])
+          .range([0, width]);
+        
+        // Draw X axis
+        const xAxis = d3.axisBottom(xScale)
+          .tickFormat(d3.format('d'))
+          .ticks(maxYear - minYear + 1);
+          
+        svg.append('g')
+          .attr('class', 'axis x-axis')
+          .attr('transform', `translate(0,${height})`)
+          .call(xAxis)
+          .selectAll('text')
+          .style('text-anchor', 'middle');
+        
+        // X axis label
+        svg.append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + margin.bottom - 10)
+          .text('Year');
+        
+        // Add vertical grid lines for each year
+        for (let year = minYear; year <= maxYear; year++) {
+          svg.append('line')
+            .attr('class', 'year-divider')
+            .attr('x1', xScale(year))
+            .attr('x2', xScale(year))
+            .attr('y1', 0)
+            .attr('y2', height);
+        }
+        
+        // Count events per year for jittering
+        const eventsPerYear = {};
+        data.forEach(d => {
+          eventsPerYear[d.year] = (eventsPerYear[d.year] || 0) + 1;
+        });
+        
+        // Determine color based on selection
+        function getColor(d) {
+          if (colorBy === 'default') {
+            return '#3498db';
+          } else if (colorBy === 'ideologicalAffiliation') {
+            return colorScale(d.ideologicalAffiliation);
+          } else if (colorBy === 'criminalMethod') {
+            return colorScale(d.criminalMethod);
+          } else if (colorBy === 'location') {
+            return colorScale(d.location);
+          }
+          return '#3498db'; // Default fallback
+        }
+        
+        // Draw dots for each event with jittering
+        svg.selectAll('.dot')
+          .data(data)
+          .enter()
+          .append('circle')
+          .attr('class', 'dot')
+          .attr('cx', d => xScale(d.year))
+          .attr('cy', d => {
+            // Jitter the y position based on the number of events that year
+            const count = eventsPerYear[d.year];
+            const maxJitter = Math.min(300, height - 50); // Limit jitter height
+            return height - (Math.random() * maxJitter);
+          })
+          .attr('r', 5)
+          .attr('fill', d => getColor(d))
+          .attr('opacity', 0.8)
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 1)
+          .on('mouseover', function(event, d) {
+            // Highlight the dot
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('r', 8)
+              .attr('stroke-width', 2);
+            
+            // Show tooltip
+            tooltip.transition()
+              .duration(200)
+              .style('opacity', 0.9);
+            
+            let tooltipContent = `
+              <strong>Date:</strong> ${d.Date}<br>
+              <strong>Location:</strong> ${d["Location: city"] || ''}, ${d["Location: state"] || ''}, ${d.location}<br>
+              <strong>Ideological Affiliation:</strong> ${d.ideologicalAffiliation}<br>
+              <strong>Method:</strong> ${d.criminalMethod}<br>
+              <strong>Impact:</strong> ${d.killed} killed, ${d.injured} injured<br>
+              <strong>Description:</strong> ${d.shortDescription}
+            `;
+            
+            tooltip.html(tooltipContent)
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 15) + 'px');
+          })
+          .on('mouseout', function() {
+            // Reset dot appearance
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('r', 5)
+              .attr('stroke-width', 1);
+            
+            // Hide tooltip
+            tooltip.transition()
+              .duration(500)
+              .style('opacity', 0);
+          });
+        
+        // Calculate trend line
+        const yearCounts = Array.from(d3.group(data, d => d.year), ([key, value]) => ({
+          year: key,
+          count: value.length
+        })).sort((a, b) => a.year - b.year);
+        
+        // Simple linear regression for trendline
+        const xValues = yearCounts.map(d => d.year);
+        const yValues = yearCounts.map(d => d.count);
+        
+        // Calculate the means
+        const xMean = d3.mean(xValues);
+        const yMean = d3.mean(yValues);
+        
+        // Calculate the slope and y-intercept
+        let numerator = 0;
+        let denominator = 0;
+        
+        for (let i = 0; i < xValues.length; i++) {
+          numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
+          denominator += Math.pow(xValues[i] - xMean, 2);
+        }
+        
+        const slope = numerator / denominator;
+        const intercept = yMean - (slope * xMean);
+        
+        // Create trendline data points
+        const trendData = [];
+        for (let year = minYear; year <= maxYear; year++) {
+          const predictedCount = slope * year + intercept;
+          const yPos = Math.max(0, height - (predictedCount / d3.max(yValues) * (height - 50)));
+          trendData.push({ year, yPos });
+        }
+        
+        // Draw trend line
+        svg.append('path')
+          .datum(trendData)
+          .attr('class', 'trend-line')
+          .attr('d', d3.line()
+            .x(d => xScale(d.year))
+            .y(d => d.yPos)
+          );
+        
+        // Update legend
+        updateLegend();
+      }
+      
+      // Render the month pattern view
+      function renderMonthPattern() {
+        // Clear SVG
+        svg.selectAll('*').remove();
+        
+        // Filter data to only include entries with valid months
+        const monthData = data.filter(d => d.month);
+        
+        // Set up scales
+        const xScale = d3.scaleLinear()
+          .domain([1, 12])
+          .range([0, width]);
+        
+        const years = monthData.map(d => d.year);
+        const minYear = d3.min(years);
+        const maxYear = d3.max(years);
+        
+        const yScale = d3.scaleLinear()
+          .domain([minYear - 0.5, maxYear + 0.5])
+          .range([height, 0]);
+        
+        // Draw X axis (months)
+        const xAxis = d3.axisBottom(xScale)
+          .tickFormat(d => {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months[d - 1];
+          })
+          .ticks(12);
+          
+        svg.append('g')
+          .attr('class', 'axis x-axis')
+          .attr('transform', `translate(0,${height})`)
+          .call(xAxis);
+        
+        // X axis label
+        svg.append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + margin.bottom - 10)
+          .text('Month');
+        
+        // Draw Y axis (years)
+        const yAxis = d3.axisLeft(yScale)
+          .tickFormat(d3.format('d'))
+          .ticks(maxYear - minYear + 1);
+          
+        svg.append('g')
+          .attr('class', 'axis y-axis')
+          .call(yAxis);
+        
+        // Y axis label
+        svg.append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -margin.left + 15)
+          .text('Year');
+        
+        // Add horizontal grid lines for each year
+        for (let year = minYear; year <= maxYear; year++) {
+          svg.append('line')
+            .attr('class', 'year-divider')
+            .attr('x1', 0)
+            .attr('x2', width)
+            .attr('y1', yScale(year))
+            .attr('y2', yScale(year));
+        }
+        
+        // Determine color based on selection
+        function getColor(d) {
+          if (colorBy === 'default') {
+            return '#3498db';
+          } else if (colorBy === 'ideologicalAffiliation') {
+            return colorScale(d.ideologicalAffiliation);
+          } else if (colorBy === 'criminalMethod') {
+            return colorScale(d.criminalMethod);
+          } else if (colorBy === 'location') {
+            return colorScale(d.location);
+          }
+          return '#3498db'; // Default fallback
+        }
+        
+        // Draw dots for each event
+        svg.selectAll('.dot')
+          .data(monthData)
+          .enter()
+          .append('circle')
+          .attr('class', 'dot')
+          .attr('cx', d => xScale(d.month))
+          .attr('cy', d => yScale(d.year))
+          .attr('r', 5)
+          .attr('fill', d => getColor(d))
+          .attr('opacity', 0.8)
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 1)
+          .on('mouseover', function(event, d) {
+            // Highlight the dot
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('r', 8)
+              .attr('stroke-width', 2);
+            
+            // Show tooltip
+            tooltip.transition()
+              .duration(200)
+              .style('opacity', 0.9);
+            
+            let tooltipContent = `
+              <strong>Date:</strong> ${d.Date}<br>
+              <strong>Location:</strong> ${d["Location: city"] || ''}, ${d["Location: state"] || ''}, ${d.location}<br>
+              <strong>Ideological Affiliation:</strong> ${d.ideologicalAffiliation}<br>
+              <strong>Method:</strong> ${d.criminalMethod}<br>
+              <strong>Impact:</strong> ${d.killed} killed, ${d.injured} injured<br>
+              <strong>Description:</strong> ${d.shortDescription}
+            `;
+            
+            tooltip.html(tooltipContent)
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 15) + 'px');
+          })
+          .on('mouseout', function() {
+            // Reset dot appearance
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('r', 5)
+              .attr('stroke-width', 1);
+            
+            // Hide tooltip
+            tooltip.transition()
+              .duration(500)
+              .style('opacity', 0);
+          });
+        
+        // Update legend
+        updateLegend();
+      }
+      
+      // Update the legend based on current color selection
+      function updateLegend() {
+        // Clear existing legend
+        d3.select('#legend').html('');
+        
+        if (colorBy === 'default') {
+          return; // No legend needed for default coloring
+        }
+        
+        // Get unique values for the selected color category
+        let uniqueValues;
+        if (colorBy === 'ideologicalAffiliation') {
+          uniqueValues = [...new Set(data.map(d => d.ideologicalAffiliation))];
+        } else if (colorBy === 'criminalMethod') {
+          uniqueValues = [...new Set(data.map(d => d.criminalMethod))];
+        } else if (colorBy === 'location') {
+          uniqueValues = [...new Set(data.map(d => d.location))];
+        }
+        
+        // Sort values alphabetically
+        uniqueValues.sort();
+        
+        // Create legend items
+        const legendContainer = d3.select('#legend');
+        
+        uniqueValues.forEach(value => {
+          const item = legendContainer.append('div')
+            .attr('class', 'legend-item');
+          
+          item.append('div')
+            .attr('class', 'legend-color')
+            .style('background-color', colorScale(value));
+          
+          item.append('span')
+            .text(value);
+        });
+      }
+      
+      // Initialize the visualization
+      init();
+      
+      // Add IntersectionObserver for scrollytelling (placeholder)
+      // This is a simple example - you can expand this based on your scrolly site needs
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // The visualization is in view - you can trigger animations or updates here
+              console.log('Visualization is in view');
+            }
+          });
+        }, { threshold: 0.5 });
+        
+        // Observe the visualization container
+        observer.observe(document.querySelector('#visualization'));
+      }
+    });
+  </script>
+</body>
+</html>
