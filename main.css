@@ -133,6 +133,7 @@
       height: 100vh;
       pointer-events: none;
       z-index: 10;
+      overflow: hidden;
     }
 
     .headline {
@@ -143,6 +144,13 @@
       opacity: 0;
       transition: opacity 0.8s ease; /* Longer, smoother transition */
       will-change: opacity; /* Performance hint for browsers */
+    }
+
+        /* Mobile styles */
+    @media (max-width: 767px) {
+      .headline {
+        transition: opacity 0.5s ease; /* Faster transitions on mobile */
+      }
     }
 
 

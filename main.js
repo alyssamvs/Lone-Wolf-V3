@@ -30,128 +30,7 @@ window.addEventListener('scroll', function() {
 //---------------------------
 //--------------------------- 
  
-// document.addEventListener('DOMContentLoaded', function() {
-//   // Configuration
-//   const numberOfHeadlines = 19;
-//   const headlinesContainer = document.querySelector('.headlines-container');
-//   const section2 = document.querySelectorAll('.section')[1];
-//   const secondCaption = section2.querySelectorAll('.caption')[1];
-  
-//   // Array to track placed headlines for collision detection
-//   const placedHeadlines = [];
-  
-//   // Function to check if a position overlaps with existing headlines
-//   function checkOverlap(x, y, width, height) {
-//     // Add some margin between headlines
-//     const margin = 20;
-    
-//     for (const placed of placedHeadlines) {
-//       // Check if rectangles overlap
-//       if (
-//         x < placed.x + placed.width + margin &&
-//         x + width + margin > placed.x &&
-//         y < placed.y + placed.height + margin &&
-//         y + height + margin > placed.y
-//       ) {
-//         return true; // Overlap detected
-//       }
-//     }
-//     return false; // No overlap
-//   }
-  
-//   // Create headlines
-//   for (let i = 1; i <= numberOfHeadlines; i++) {
-//     const headline = document.createElement('div');
-//     headline.classList.add('headline');
-    
-//     // Set headline dimensions
-//     const width = 300;
-//     const height = 100;
-    
-//     // Try to find a non-overlapping position (max 50 attempts)
-//     let positionFound = false;
-//     let attempts = 0;
-//     let top, left;
-    
-//     while (!positionFound && attempts < 50) {
-//       // Generate random position
-//       top = 10 + Math.random() * 70; // % from top
-//       left = Math.random() * 80; // % from left
-      
-//       // Convert percentage to pixels for collision detection
-//       const xPos = (left / 100) * window.innerWidth;
-//       const yPos = (top / 100) * window.innerHeight;
-      
-//       // Check if this position overlaps with existing headlines
-//       if (!checkOverlap(xPos, yPos, width, height)) {
-//         positionFound = true;
-        
-//         // Remember this position for future collision checks
-//         placedHeadlines.push({
-//           x: xPos,
-//           y: yPos,
-//           width: width,
-//           height: height
-//         });
-//       }
-      
-//       attempts++;
-//     }
-    
-//     // Set position
-//     headline.style.top = `${top}%`;
-//     headline.style.left = `${left}%`;
-//     headline.style.width = `${width}px`;
-//     headline.style.height = `${height}px`;
-    
-//     headline.style.backgroundImage = `url('headlines/headline${i}.png')`;
-//     headlinesContainer.appendChild(headline);
-//   }
-
-
-
-
-
-
-
-    
-//     // Get all headlines
-//     const headlines = document.querySelectorAll('.headline');
-    
-//     // Scroll handler to show/hide headlines
-//     window.addEventListener('scroll', function() {
-//       // Check if second caption is in the middle of the screen
-//       const secondCaptionRect = secondCaption.getBoundingClientRect();
-//       const viewportMiddle = window.innerHeight / 2;
-//       const captionCenter = (secondCaptionRect.top + secondCaptionRect.bottom) / 2;
-//       const isCaptionInMiddle = Math.abs(captionCenter - viewportMiddle) < 150; // Adjust this value as needed
-      
-//       // Check if we've scrolled past section 2
-//       const section2Bottom = section2.getBoundingClientRect().bottom;
-//       const isPastSection2 = section2Bottom < 0;
-      
-//       // Show headlines when caption is in the middle and we haven't scrolled past section 2
-//       if (isCaptionInMiddle && !isPastSection2) {
-//         headlines.forEach((headline, index) => {
-//           setTimeout(() => {
-//             headline.style.opacity = '1';
-//           }, index * 300); // Staggered appearance
-//         });
-//       } 
-//       // Hide headlines otherwise
-//       else {
-//         headlines.forEach((headline, index) => {
-//           setTimeout(() => {
-//             headline.style.opacity = '0';
-//           }, index * 150); // Staggered disappearance
-//         });
-//       }
-//     });
-//   });
-
-
-
-
+// 
 document.addEventListener('DOMContentLoaded', function() {
   // Configuration
   const numberOfHeadlines = 15;
@@ -163,12 +42,47 @@ document.addEventListener('DOMContentLoaded', function() {
   let headlinesVisible = false;
   let animationInProgress = false;
   
-  // Array to track placed headlines for collision detection
+  // Detect if we're on mobile
+  const isMobile = window.innerWidth < 768;
+  
+  // Adjust headline size based on device
+  const headlineWidth = isMobile ? 200 : 300;
+  const headlineHeight = isMobile ? 60 : 100;
+  
+  // Safety margins to prevent cutoff (percentage of viewport)
+  const safetyMarginLeft = isMobile ? 10 : 5; // % from left edge
+  const safetyMarginRight = isMobile ? 15 : 10; // % from right edge
+  const safetyMarginTop = 5; // % from top edge
+  const safetyMarginBottom = 5; // % from bottom edge
+  
+  // Calculate usable area (accounting for headline dimensions)
+  const usableWidthPercent = 100 - safetyMarginLeft - safetyMarginRight - (headlineWidth / window.innerWidth * 100);
+  const usableHeightPercent = 100 - safetyMarginTop - safetyMarginBottom - (headlineHeight / window.innerHeight * 100);
+  
+  // Array to track placed headlines
   const placedHeadlines = [];
+  
+  // Divide the screen into zones to ensure even distribution
+  const numHorizontalZones = isMobile ? 3 : 4;
+  const numVerticalZones = 5;
+  
+  // Create a grid of zones to place headlines
+  const zones = [];
+  for (let x = 0; x < numHorizontalZones; x++) {
+    for (let y = 0; y < numVerticalZones; y++) {
+      zones.push({ x, y });
+    }
+  }
+  
+  // Shuffle zones for random placement
+  for (let i = zones.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [zones[i], zones[j]] = [zones[j], zones[i]];
+  }
   
   // Function to check if a position overlaps with existing headlines
   function checkOverlap(x, y, width, height) {
-    const margin = 20;
+    const margin = isMobile ? 10 : 20;
     
     for (const placed of placedHeadlines) {
       if (
@@ -183,58 +97,78 @@ document.addEventListener('DOMContentLoaded', function() {
     return false;
   }
   
-  // Create headlines
-  for (let i = 1; i <= numberOfHeadlines; i++) {
+  // Create headlines using the zone system with safety margins
+  for (let i = 0; i < Math.min(numberOfHeadlines, zones.length); i++) {
     const headline = document.createElement('div');
     headline.classList.add('headline');
     
-    const width = 300;
-    const height = 100;
+    // Set dimensions
+    headline.style.width = `${headlineWidth}px`;
+    headline.style.height = `${headlineHeight}px`;
     
-    let positionFound = false;
-    let attempts = 0;
-    let top, left;
+    // Get a zone for this headline
+    const zone = zones[i];
     
-    while (!positionFound && attempts < 50) {
-      top = 10 + Math.random() * 70;
-      left = Math.random() * 80;
-      
-      const xPos = (left / 100) * window.innerWidth;
-      const yPos = (top / 100) * window.innerHeight;
-      
-      if (!checkOverlap(xPos, yPos, width, height)) {
-        positionFound = true;
-        
-        placedHeadlines.push({
-          x: xPos,
-          y: yPos,
-          width: width,
-          height: height
-        });
-      }
-      
-      attempts++;
+    // Calculate safe zone boundaries
+    const zoneWidth = usableWidthPercent / numHorizontalZones;
+    const zoneHeight = usableHeightPercent / numVerticalZones;
+    
+    // Calculate position within the zone (with some randomness)
+    const zoneLeftStart = zone.x * zoneWidth + safetyMarginLeft;
+    const zoneTopStart = zone.y * zoneHeight + safetyMarginTop;
+    
+    // Add randomness within the zone (but keep within zone boundaries)
+    const leftOffset = Math.random() * (zoneWidth * 0.7);
+    const topOffset = Math.random() * (zoneHeight * 0.7);
+    
+    // Calculate final position percentages with safety constraints
+    const left = Math.min(Math.max(zoneLeftStart + leftOffset, safetyMarginLeft), 100 - safetyMarginRight - (headlineWidth / window.innerWidth * 100));
+    const top = Math.min(Math.max(zoneTopStart + topOffset, safetyMarginTop), 100 - safetyMarginBottom - (headlineHeight / window.innerHeight * 100));
+    
+    // Convert percentage to pixels for collision detection
+    const xPos = (left / 100) * window.innerWidth;
+    const yPos = (top / 100) * window.innerHeight;
+    
+    // Only check for overlap in congested areas
+    let overlap = false;
+    if (placedHeadlines.length > numHorizontalZones * numVerticalZones * 0.5) {
+      overlap = checkOverlap(xPos, yPos, headlineWidth, headlineHeight);
     }
     
-    headline.style.top = `${top}%`;
-    headline.style.left = `${left}%`;
-    headline.style.width = `${width}px`;
-    headline.style.height = `${height}px`;
-    
-    headline.style.backgroundImage = `url('headlines/headline${i}.png')`;
-    headlinesContainer.appendChild(headline);
+    if (!overlap) {
+      // Apply the position
+      headline.style.top = `${top}%`;
+      headline.style.left = `${left}%`;
+      
+      // Remember this position for collision detection
+      placedHeadlines.push({
+        x: xPos,
+        y: yPos,
+        width: headlineWidth,
+        height: headlineHeight
+      });
+      
+      // Set background image
+      headline.style.backgroundImage = `url('headlines/headline${i+1}.png')`;
+      headline.style.backgroundSize = 'contain';
+      
+      // Add debug border (comment out in production)
+      // headline.style.border = "1px solid blue";
+      
+      headlinesContainer.appendChild(headline);
+    }
   }
   
   // Get all headlines
   const headlines = Array.from(document.querySelectorAll('.headline'));
   
-  // Shuffle the headlines array
+  // Shuffle the headlines array for random appearance order
   for (let i = headlines.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [headlines[i], headlines[j]] = [headlines[j], headlines[i]];
   }
   
-  // Debounce function to prevent rapid firing
+  // Debounce function
   function debounce(func, wait) {
     let timeout;
     return function() {
@@ -260,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
           headlinesVisible = true;
           animationInProgress = false;
         }
-      }, index * 300);
+      }, index * (isMobile ? 200 : 300));
     });
   }
   
@@ -279,37 +213,44 @@ document.addEventListener('DOMContentLoaded', function() {
           headlinesVisible = false;
           animationInProgress = false;
         }
-      }, index * 150);
+      }, index * (isMobile ? 100 : 150));
     });
   }
   
   // Scroll handler with debounce
   const handleScroll = debounce(function() {
-    // Check if second caption is in the middle of the screen
-    const secondCaptionRect = secondCaption.getBoundingClientRect();
     const viewportMiddle = window.innerHeight / 2;
+    const secondCaptionRect = secondCaption.getBoundingClientRect();
     const captionCenter = (secondCaptionRect.top + secondCaptionRect.bottom) / 2;
     
-    // Add a larger buffer zone to reduce flickering during small scroll movements
-    const isCaptionNearMiddle = Math.abs(captionCenter - viewportMiddle) < 200;
+    const triggerDistance = isMobile ? 250 : 200;
+    const isCaptionNearMiddle = Math.abs(captionCenter - viewportMiddle) < triggerDistance;
     
-    // Check if we've scrolled past section 2
     const section2Bottom = section2.getBoundingClientRect().bottom;
     const isPastSection2 = section2Bottom < 0;
     
-    // Clear decision to show or hide
     if (isCaptionNearMiddle && !isPastSection2) {
       showHeadlines();
     } else {
       hideHeadlines();
     }
-  }, 100); // 100ms debounce
+  }, isMobile ? 50 : 100);
   
   // Attach debounced scroll handler
   window.addEventListener('scroll', handleScroll);
   
-  // Initial check in case the page loads with the caption already in position
+  // Handle window resize
+  window.addEventListener('resize', debounce(function() {
+    // Recalculate whether we're on mobile
+    const wasMobile = isMobile;
+    const isMobileNow = window.innerWidth < 768;
+    
+    // If mobile status changed, reload the page to regenerate headlines
+    if (wasMobile !== isMobileNow) {
+      location.reload();
+    }
+  }, 250));
+  
+  // Initial check
   handleScroll();
 });
-
-
