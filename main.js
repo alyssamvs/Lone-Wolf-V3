@@ -33,7 +33,7 @@ window.addEventListener('scroll', function() {
 // 
 document.addEventListener('DOMContentLoaded', function() {
   // Configuration
-  const numberOfHeadlines = 15;
+  const numberOfHeadlines = 19;
   const headlinesContainer = document.querySelector('.headlines-container');
   const section2 = document.querySelectorAll('.section')[1];
   const secondCaption = section2.querySelectorAll('.caption')[1];
