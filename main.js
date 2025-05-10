@@ -24,6 +24,45 @@ window.addEventListener('scroll', function() {
 
 //---------------------------
 //---------------------------
-//-----PROGRESS BAR----------
+//-----HEADLINES----------
 //---------------------------
 //---------------------------
+
+document.addEventListener('DOMContentLoaded', () => {
+  const imgs = document.querySelectorAll('.images .img-container');
+  imgs.forEach((div, idx) => {
+    // assumes files are named headline1.png, headline2.png, …
+    const fileName = `headlines/headline${idx+1}.png`;
+    div.style.setProperty('--bg', `url('${fileName}')`);
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const imgs = Array.from(document.querySelectorAll('.images .img-container'));
+
+  // first: assign backgrounds as before
+  imgs.forEach((div, idx) => {
+    div.style.setProperty('--bg', `url('headlines/headline${idx+1}.png')`);
+  });
+
+  // now “spray” them
+  imgs.forEach(div => {
+    // pick random size between 20% and 60% of viewport width
+    const size = 20 + Math.random() * 40;    // percent
+
+    // pick random top between 0vh and 60vh
+    const top  = Math.random() * 60;         // vh
+
+    // pick random left between 0vw and 60vw
+    const left = Math.random() * 60;         // vw
+
+    // pick random rotation between –15° and +15°
+    const rot  = (Math.random() * 30) - 15;  // deg
+
+    // apply as inline style
+    div.style.top            = `${top}vh`;
+    div.style.left           = `${left}vw`;
+    div.style.backgroundSize = `${size}%`;
+    div.style.transform      = `rotate(${rot}deg)`;
+  });
+});

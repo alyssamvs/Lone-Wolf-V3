@@ -43,6 +43,7 @@
         height: 100%;
         background-color: #000; /* Black color */
         width: 0%; /* Initial width */
+        transition: width 0.2s ease-out;
       }
 
       /* Hero section */
@@ -113,7 +114,40 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
+      /*
+--------------------
+--------------------
+    HEADLINES
+--------------------
+--------------------*/
+
+      /* container for all sticky images; height = #images × 100vh */
+      .images {
+        position: relative;
+        height: calc(19 * 100vh);  /* 19 images */
+        width: 100%;
+      }
       
+      .img-container {
+        position: sticky;
+        /* we’ll override top/left in JS */
+        top: 0;
+        left: 0;
+        height: 20vh;
+        background: var(--bg) center/contain no-repeat;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* style the screenshot */
+      .img-container img {
+        max-width: 40%;
+        max-height: 40%;
+        object-fit: contain;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        margin-bottom: 1rem;
+      }
+
 
 
 /*
