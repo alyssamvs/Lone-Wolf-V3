@@ -291,31 +291,37 @@
       
       // Calculate how many years per row based on event counts
       // More events = need more space
-      const totalEvents = events.length;
-      const avgEventsPerYear = totalEvents / years.length;
-      const optimalYearsPerRow = Math.max(3, Math.min(8, Math.floor(width / (Math.sqrt(avgEventsPerYear) * 30))));
-      
-      // Arrange years in rows
-      const rows = Math.ceil(years.length / optimalYearsPerRow);
-      const yearsPerRow = Math.ceil(years.length / rows);
-      
-      // Calculate positions
-      years.forEach((year, i) => {
-        const row = Math.floor(i / yearsPerRow);
-        const col = i % yearsPerRow;
-        
-        const rowWidth = Math.min(years.length - row * yearsPerRow, yearsPerRow);
-        const rowHeight = height / rows;
-        
-        const cellWidth = width / rowWidth;
-        
-        yearPositions.push({
-          year: year,
-          x: col * cellWidth + cellWidth / 2,
-          y: row * rowHeight + rowHeight / 2,
-          count: eventsByYear.get(year).length
-        });
-      });
+      const yearsPerRow = Math.ceil(Math.sqrt(years.length));
+const rows = Math.ceil(years.length / yearsPerRow);
+
+// Use more of the available space by reducing margins
+const effectiveWidth = width * 0.9;
+const effectiveHeight = height * 0.85;
+const cellWidth = effectiveWidth / yearsPerRow;
+const cellHeight = effectiveHeight / rows;
+
+// Calculate positions with better spacing
+years.forEach((year, i) => {
+  const row = Math.floor(i / yearsPerRow);
+  const col = i % yearsPerRow;
+  
+  // Add small margin to the container edges
+  const marginX = (width - effectiveWidth) / 2;
+  const marginY = (height - effectiveHeight) / 2;
+  
+  // Scale the cell size based on event count
+  const eventCount = eventsByYear.get(year).length;
+  const sizeMultiplier = Math.sqrt(eventCount) / 5 + 0.8; // Scale factor
+  const adjustedCellWidth = cellWidth * Math.min(sizeMultiplier, 1.5); // Limit maximum size
+  
+  yearPositions.push({
+    year: year,
+    x: marginX + col * cellWidth + cellWidth / 2,
+    y: marginY + row * cellHeight + cellHeight / 2,
+    count: eventCount,
+    radius: Math.max(adjustedCellWidth / 5, 20) // Adjust cluster radius based on count
+  });
+});
       
       // Create center points for each year
       svg.selectAll(".year-center")
@@ -415,15 +421,23 @@
             .style("opacity", 0);
         });
       
+    //_________________________________________________________________
+    //_________________________________________________________________
+    // SECTION 4: SIMULATION
+    //_________________________________________________________________
+    //_________________________________________________________________
+      
       // Create single simulation for all events
       // This will naturally form clusters around year centers
-      const simulation = d3.forceSimulation(flatEvents)
-        .alphaDecay(0.01) // Very slow decay for more movement
-        .velocityDecay(0.2) // Less friction
-        .force("x", d3.forceX(d => d.yearCenter.x).strength(0.2)) // Medium attraction to year center
-        .force("y", d3.forceY(d => d.yearCenter.y).strength(0.2))
-        .force("charge", d3.forceManyBody().strength(-40)) // Strong repulsion
-        .force("collide", d3.forceCollide(6).strength(0.9)) // Strong collision avoidance
+
+
+        const simulation = d3.forceSimulation(flatEvents)
+        .alphaDecay(0.02) // Very slow decay for more movement
+        .velocityDecay(0.3) // Less friction
+        .force("x", d3.forceX(d => d.yearCenter.x).strength(0.4)) // Medium attraction to year center
+        .force("y", d3.forceY(d => d.yearCenter.y).strength(0.4))
+        .force("charge", d3.forceManyBody().strength(-30)) // Strong repulsion
+        .force("collide", d3.forceCollide(6).strength(0.7)) // Strong collision avoidance
         .on("tick", () => {
           // Update positions on each tick
           eventCircles
