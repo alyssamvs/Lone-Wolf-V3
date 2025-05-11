@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Function to check if a position overlaps with existing headlines
   function checkOverlap(x, y, width, height) {
-    const margin = isMobile ? 10 : 20;
+    const margin = isMobile ? 10 : 30;
     
     for (const placed of placedHeadlines) {
       if (
@@ -254,3 +254,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initial check
   handleScroll();
 });
+
+
+//---------------------------------
+//---------------------------------
+//-----BEESWARM VISUALIZATION------
+//---------------------------------
+//---------------------------------
+
+

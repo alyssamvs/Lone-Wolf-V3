@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>The Myth of the Lone Wolf</title>
   <link rel="stylesheet" href="main.css" />
-  <script defer src="main.js"></script>
-  <script defer src="beeswarm.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script defer src="beeswarm.js"></script>
+  <script defer src="main.js"></script>
 </head>
 
 <body>
@@ -88,7 +88,91 @@
   <!-- SECTION 3 -->  
 
   <div class="section">
-    <div class="sticky-bg" style="background-image: url('Assets/soldier.png')"></div>
+    <div class="sticky-bg"></div>
+        
+  <!-- Visualization container -->
+
+  <div class="visualization-container">
+    
+    <!-- Section 1: Introduction -->
+    <div class="viz-section">
+      <div class="viz-content">
+        <h2>The Rise of Accelerationism</h2>
+        <p>Accelerationism events have shown a dramatic increase over the past three decades. This visualization explores how these events have evolved over time, not just in frequency but in human impact.</p>
+        <p>Scroll down to begin exploring the data...</p>
+      </div>
+    </div>
+    
+    <!-- Sticky Visualization Container -->
+    <div class="sticky-viz">
+      <div id="visualization"> </div>
+      <div class="casualty-status" id="casualtyStatus">
+        Now showing: <span id="casualtyMode">Event frequency over time</span>
+      </div>
+    </div>
+    
+    <!-- Section 2: Frequency Over Time -->
+    <div class="viz-section" id="section-frequency">
+      <div class="viz-content narrative fade-in">
+        <h2>Event Frequency (1995-2023)</h2>
+        <p>From 1995 to 2017, accelerationism events were relatively rare, with fewer than 5 events per year. Each dot represents a single event in the dataset.</p>
+        <p>Notice how events begin to cluster more densely starting in 2018, showing a significant increase in frequency.</p>
+      </div>
+    </div>
+    
+    <!-- Section 3: The Turning Point -->
+    <div class="viz-section" id="section-turning-point">
+      <div class="viz-content narrative fade-in">
+        <h2>The Turning Point (2018-2019)</h2>
+        <p>2018 marked a significant turning point, with 14 recorded events - a dramatic increase from previous years.</p>
+      </div>
+    </div>
+    
+    <!-- Section 4: Recent Surge -->
+    <div class="viz-section" id="section-recent">
+      <div class="viz-content narrative fade-in">
+        <h2>The Recent Surge (2020-2021)</h2>
+        <p>In 2020, we see an unprecedented spike with 59 events, followed by 2021's peak of 85 events - the highest recorded in the dataset.</p>
+        <p>After 2021, we observe some decline in 2022 (33 events) and 2023 (18 events), but numbers remain significantly higher than pre-2018 levels.</p>
+      </div>
+    </div>
+    
+    <!-- Section 5: Human Impact Transition -->
+    <div class="viz-section" id="section-transition-casualties">
+      <div class="viz-content narrative fade-in">
+        <h2>Beyond Numbers: The Human Impact</h2>
+        <p>While the frequency of events tells one story, the human impact reveals another dimension. As we transition to examining casualties, the circle size will now represent the combined number of people killed and wounded in each event.</p>
+        <p>This view helps us understand which events, beyond their frequency, had the most devastating human impact.</p>
+      </div>
+    </div>
+    
+    <!-- Section 6: High-Casualty Events -->
+    <div class="viz-section" id="section-high-casualties">
+      <div class="viz-content narrative fade-in">
+        <h2>High-Casualty Events</h2>
+        <p>The largest circles represent events with the highest number of casualties. Note how some years with relatively few events still had significant human impact due to high-casualty incidents.</p>
+        <p>Hover over the circles to explore the details of each event, including location, ideology, and specific casualty counts.</p>
+      </div>
+    </div>
+    
+    <!-- Section 7: Conclusion -->
+    <div class="viz-section" id="section-conclusion">
+      <div class="viz-content narrative fade-in">
+        <h2>Understanding the Full Picture</h2>
+        <p>By examining both frequency and casualties, we can see that accelerationism isn't just increasing in occurrence but also in potential for harm.</p>
+        <p>This visualization helps us understand both the temporal patterns and human impact of these events, providing essential context for policymakers, researchers, and the public.</p>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+   
+
+  <!-- CAPTIONS -->
+      
     <div class="captions">
       <div class="caption">
         <p>First, a little bit of context:</p>
