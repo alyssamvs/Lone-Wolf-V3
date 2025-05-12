@@ -10,7 +10,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        /* border: 2px solid red; */
+        border: 2px solid red;
         font-family: Palatino Linotype, "Book Antiqua", Palatino, serif;
       }
   
@@ -240,3 +240,76 @@ BEESWARM VISUALIZATION
 --------------------
 --------------------*/
 
+.visualization-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  height:400vh;
+}
+
+.captions {
+  position: absolute;
+  top: 50vh;
+  width: 100%;
+  height: 300vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20vh 0;
+  z-index: 1000;
+}
+
+.caption {
+  width: 300px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-viz {
+  position: sticky;
+  top: 15vh;
+  height: 600px;
+  z-index: 1;
+  /* background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); */
+}
+
+.tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 10;
+  max-width: 300px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.year-label {
+  text-anchor: middle;
+  font-size: 14px;
+  font-weight: bold;
+  fill: #555;
+  pointer-events: none;
+}
+
+@media screen and (max-width: 600px) {
+.sticky-viz {
+    top: 0;
+    height: 100vh; /* Full viewport height */
+    border-radius: 0; /* Remove rounded corners */
+    margin: 0 -10px; /* Extend to edges */
+    /* padding: 10px 0; */
+}
+
+#visualization {
+    height: 100vh; /* Use 70% of viewport height */
+    min-height: 500px; /* Ensure minimum height */
+}
+}

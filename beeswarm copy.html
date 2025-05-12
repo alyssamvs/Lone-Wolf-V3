@@ -403,7 +403,7 @@
 
         // Create improved force simulation
         const simulation = d3.forceSimulation(flatEvents)
-        .alphaDecay(0.01)
+        .alphaDecay(0.003)
         .velocityDecay(isMobile ? 0.4 : 0.3) // More friction on mobile
         .force("x", d3.forceX(d => d.yearCenter.x).strength(isMobile ? 0.1 : 0.4)) // Less horizontal constraint on mobile
         .force("y", d3.forceY(d => d.yearCenter.y).strength(0.5))
@@ -453,52 +453,31 @@
         
         visualizationObserver.observe(document.querySelector('.sticky-viz'));
         
-//----------ANIMATION FUNCTION----------
+//------------------
+//------------------
+//ANIMATION FUNCTION
+//------------------
+//------------------
 
-        // Improved animation function
-        function startAnimation() {
-          if (hasStartedAnimation) return;
-          hasStartedAnimation = true;
+        
+      function startAnimation() {
+        if (hasStartedAnimation) return;
+        hasStartedAnimation = true;
           
           // Calculate cluster radii based on event count
           const yearEventCounts = {};
           flatEvents.forEach(e => {
             yearEventCounts[e.date.year] = (yearEventCounts[e.date.year] || 0) + 1;
           });
+
+          // simulation.alphaTarget(0.3).restart();
+          simulation
+            .alpha(0.2)    // jump current α up to 0.8
+            .alphaTarget(0.01) // then let it decay back toward 0
+            .restart();
           
-          // Animate circles to their year centers with better distribution
-          eventCircles.transition()
-            .duration(1200)
-            .delay((d, i) => i % 10 * 10)
-            .attrTween("cx", function(d) {
-              const startX = +d3.select(this).attr("cx");
-              
-              // Smaller horizontal spread
-              const targetX = d.yearCenter.x + (Math.random() - 0.5) * 15;
-              
-              return d3.interpolate(startX, targetX);
-            })
-            .attrTween("cx", function(d) {
-                const startX = +d3.select(this).attr("cx");
-                
-                // On mobile, much wider horizontal spread since dots are stacked vertically
-                const horizontalSpread = isMobile ? width * 0.6 : 15;
-                const targetX = d.yearCenter.x + (Math.random() - 0.5) * horizontalSpread;
-                
-                return d3.interpolate(startX, targetX);
-                })
-            .on("end", () => {
-              // Start force simulation
-              simulation.alpha(0.1).restart();
-              
-              // Schedule a restart for better arrangement
-              setTimeout(() => {
-                simulation.alpha(0.3).restart();
-              }, 2000);
-            });
         }
 
-        
 //------------------
 //------------------
 //SCROLLY
