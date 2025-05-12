@@ -30,7 +30,6 @@ window.addEventListener('scroll', function() {
 //---------------------------
 //--------------------------- 
  
-// 
 document.addEventListener('DOMContentLoaded', function() {
   // Configuration
   const numberOfHeadlines = 19;
@@ -45,128 +44,159 @@ document.addEventListener('DOMContentLoaded', function() {
   // Detect if we're on mobile
   const isMobile = window.innerWidth < 768;
   
-  // Adjust headline size based on device
-  const headlineWidth = isMobile ? 200 : 300;
-  const headlineHeight = isMobile ? 60 : 100;
+  // Logging for debugging
+  console.log(`Screen dimensions: ${window.innerWidth}x${window.innerHeight}, Mobile: ${isMobile}`);
   
-  // Safety margins to prevent cutoff (percentage of viewport)
-  const safetyMarginLeft = isMobile ? 10 : 5; // % from left edge
-  const safetyMarginRight = isMobile ? 15 : 10; // % from right edge
-  const safetyMarginTop = 5; // % from top edge
-  const safetyMarginBottom = 5; // % from bottom edge
+  // Headline dimensions
+  const headlineWidth = isMobile ? 250 : 350;
+  const headlineHeight = isMobile ? 45 : 70;
   
-  // Calculate usable area (accounting for headline dimensions)
-  const usableWidthPercent = 100 - safetyMarginLeft - safetyMarginRight - (headlineWidth / window.innerWidth * 100);
-  const usableHeightPercent = 100 - safetyMarginTop - safetyMarginBottom - (headlineHeight / window.innerHeight * 100);
+  // ASYMMETRIC MARGINS - Much smaller on left than right
+  // The key change is here - adjust these values as needed
+  const marginLeft = isMobile ? -10 : -5;  // Very small left margin (percentage)
+  const marginRight = isMobile ? 30 : 10; // Larger right margin (percentage)
+  const marginTop = isMobile ? 1 : 5;
+  const marginBottom = isMobile ? 1 : 5;
   
-  // Array to track placed headlines
-  const placedHeadlines = [];
+  // Fixed positions approach - divide screen into a simple grid
+  const positions = [];
   
-  // Divide the screen into zones to ensure even distribution
-  const numHorizontalZones = isMobile ? 3 : 4;
-  const numVerticalZones = 5;
+  // Calculate rows and columns based on screen size
+  const columns = isMobile ? 4 : 5;
+  const rows = Math.ceil(numberOfHeadlines / columns);
   
-  // Create a grid of zones to place headlines
-  const zones = [];
-  for (let x = 0; x < numHorizontalZones; x++) {
-    for (let y = 0; y < numVerticalZones; y++) {
-      zones.push({ x, y });
-    }
+  // Create a debug container to show grid layout if needed
+  const debugMode = false // Set to true to see grid layout
+  let debugContainer;
+  
+  if (debugMode) {
+    debugContainer = document.createElement('div');
+    debugContainer.style.position = 'fixed';
+    debugContainer.style.top = '0';
+    debugContainer.style.left = '0';
+    debugContainer.style.width = '100%';
+    debugContainer.style.height = '100vh';
+    debugContainer.style.zIndex = '9';
+    debugContainer.style.pointerEvents = 'none';
+    document.body.appendChild(debugContainer);
   }
   
-  // Shuffle zones for random placement
-  for (let i = zones.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [zones[i], zones[j]] = [zones[j], zones[i]];
-  }
-  
-  // Function to check if a position overlaps with existing headlines
-  function checkOverlap(x, y, width, height) {
-    const margin = isMobile ? 10 : 30;
+  // Calculate position for each cell in grid
+  function generateGridPositions() {
+    // Calculate usable area with ASYMMETRIC margins
+    const usableWidth = 100 - marginLeft - marginRight;
+    const usableHeight = 100 - marginTop - marginBottom;
     
-    for (const placed of placedHeadlines) {
-      if (
-        x < placed.x + placed.width + margin &&
-        x + width + margin > placed.x &&
-        y < placed.y + placed.height + margin &&
-        y + height + margin > placed.y
-      ) {
-        return true;
+    // Size of each cell
+    const cellWidth = usableWidth / columns;
+    const cellHeight = usableHeight / rows;
+    
+    // Clear positions array
+    positions.length = 0;
+    
+    // Generate positions
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < columns; c++) {
+        // Calculate center point of cell - shifted left because of asymmetric margins
+        const centerX = marginLeft + (c * cellWidth) + (cellWidth / 2);
+        const centerY = marginTop + (r * cellHeight) + (cellHeight / 2);
+        
+        // Add some randomness to positions (but keep within cell)
+        // Less randomness on x-axis to prevent extending off screen
+        const jitterX = (Math.random() - 0.5) * (cellWidth * 0.3);
+        const jitterY = (Math.random() - 0.5) * (cellHeight * 0.5);
+        
+        // Final position (percentage of viewport)
+        const left = centerX + jitterX;
+        const top = centerY + jitterY;
+        
+        positions.push({ left, top });
+        
+        // Debug visualization
+        if (debugMode) {
+          const cell = document.createElement('div');
+          cell.style.position = 'absolute';
+          cell.style.left = `${marginLeft + (c * cellWidth)}%`;
+          cell.style.top = `${marginTop + (r * cellHeight)}%`;
+          cell.style.width = `${cellWidth}%`;
+          cell.style.height = `${cellHeight}%`;
+          cell.style.border = '1px dashed rgba(255,0,0,0.5)';
+          cell.innerHTML = `<div style="color:red;position:absolute;top:${cellHeight/2}px;left:${cellWidth/2}px;">Cell ${r}x${c}</div>`;
+          debugContainer.appendChild(cell);
+          
+          // Also show the usable area
+          if (r === 0 && c === 0) {
+            const usableArea = document.createElement('div');
+            usableArea.style.position = 'absolute';
+            usableArea.style.left = `${marginLeft}%`;
+            usableArea.style.top = `${marginTop}%`;
+            usableArea.style.width = `${usableWidth}%`;
+            usableArea.style.height = `${usableHeight}%`;
+            usableArea.style.border = '2px solid blue';
+            usableArea.style.boxSizing = 'border-box';
+            debugContainer.appendChild(usableArea);
+          }
+        }
       }
     }
-    return false;
+    
+    // Shuffle positions for more natural appearance
+    shuffleArray(positions);
+    
+    console.log(`Generated ${positions.length} positions for ${numberOfHeadlines} headlines`);
   }
   
-  // Create headlines using the zone system with safety margins
-  for (let i = 0; i < Math.min(numberOfHeadlines, zones.length); i++) {
+  // Shuffle array (Fisher-Yates algorithm)
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+  
+  // Generate the grid positions
+  generateGridPositions();
+  
+  // Create all headlines at the calculated positions
+  const headlines = [];
+  
+  for (let i = 0; i < numberOfHeadlines; i++) {
+    if (i >= positions.length) {
+      console.warn(`Not enough positions for headline ${i+1}`);
+      break;
+    }
+    
     const headline = document.createElement('div');
     headline.classList.add('headline');
+    headline.dataset.index = i + 1; // Store index for debugging
     
     // Set dimensions
     headline.style.width = `${headlineWidth}px`;
     headline.style.height = `${headlineHeight}px`;
     
-    // Get a zone for this headline
-    const zone = zones[i];
+    // Position headline
+    headline.style.top = `${positions[i].top}%`;
+    headline.style.left = `${positions[i].left}%`;
     
-    // Calculate safe zone boundaries
-    const zoneWidth = usableWidthPercent / numHorizontalZones;
-    const zoneHeight = usableHeightPercent / numVerticalZones;
+    // Set background image
+    headline.style.backgroundImage = `url('headlines/headline${i+1}.png')`;
+    headline.style.backgroundSize = 'contain';
+    headline.style.backgroundRepeat = 'no-repeat';
     
-    // Calculate position within the zone (with some randomness)
-    const zoneLeftStart = zone.x * zoneWidth + safetyMarginLeft;
-    const zoneTopStart = zone.y * zoneHeight + safetyMarginTop;
-    
-    // Add randomness within the zone (but keep within zone boundaries)
-    const leftOffset = Math.random() * (zoneWidth * 0.7);
-    const topOffset = Math.random() * (zoneHeight * 0.7);
-    
-    // Calculate final position percentages with safety constraints
-    const left = Math.min(Math.max(zoneLeftStart + leftOffset, safetyMarginLeft), 100 - safetyMarginRight - (headlineWidth / window.innerWidth * 100));
-    const top = Math.min(Math.max(zoneTopStart + topOffset, safetyMarginTop), 100 - safetyMarginBottom - (headlineHeight / window.innerHeight * 100));
-    
-    // Convert percentage to pixels for collision detection
-    const xPos = (left / 100) * window.innerWidth;
-    const yPos = (top / 100) * window.innerHeight;
-    
-    // Only check for overlap in congested areas
-    let overlap = false;
-    if (placedHeadlines.length > numHorizontalZones * numVerticalZones * 0.5) {
-      overlap = checkOverlap(xPos, yPos, headlineWidth, headlineHeight);
+    // Add debug information
+    if (debugMode) {
+      headline.style.border = '1px solid blue';
+      headline.innerHTML = `<span style="background:rgba(255,255,255,0.7);position:absolute;top:0;left:0;">${i+1}</span>`;
     }
     
-    if (!overlap) {
-      // Apply the position
-      headline.style.top = `${top}%`;
-      headline.style.left = `${left}%`;
-      
-      // Remember this position for collision detection
-      placedHeadlines.push({
-        x: xPos,
-        y: yPos,
-        width: headlineWidth,
-        height: headlineHeight
-      });
-      
-      // Set background image
-      headline.style.backgroundImage = `url('headlines/headline${i+1}.png')`;
-      headline.style.backgroundSize = 'contain';
-      
-      // Add debug border (comment out in production)
-      // headline.style.border = "1px solid blue";
-      
-      headlinesContainer.appendChild(headline);
-    }
+    // Add to DOM
+    headlinesContainer.appendChild(headline);
+    headlines.push(headline);
+    
+    console.log(`Created headline ${i+1} at position left: ${positions[i].left}%, top: ${positions[i].top}%`);
   }
   
-  // Get all headlines
-  const headlines = Array.from(document.querySelectorAll('.headline'));
-  
-  // Shuffle the headlines array for random appearance order
-  for (let i = headlines.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [headlines[i], headlines[j]] = [headlines[j], headlines[i]];
-  }
+  console.log(`Successfully created ${headlines.length} of ${numberOfHeadlines} headlines`);
   
   // Debounce function
   function debounce(func, wait) {
@@ -184,17 +214,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (headlinesVisible || animationInProgress) return;
     
     animationInProgress = true;
+    console.log('Showing headlines animation started');
     
-    headlines.forEach((headline, index) => {
+    // Create a shuffled array of indices for random appearance order
+    const indices = headlines.map((_, i) => i);
+    shuffleArray(indices);
+    
+    indices.forEach((index, i) => {
       setTimeout(() => {
-        headline.style.opacity = '1';
+        if (headlines[index]) {
+          headlines[index].style.opacity = '1';
+          console.log(`Showed headline ${index + 1}`);
+        }
         
         // When last headline is shown, update state
-        if (index === headlines.length - 1) {
+        if (i === indices.length - 1) {
           headlinesVisible = true;
           animationInProgress = false;
+          console.log('All headlines now visible');
         }
-      }, index * (isMobile ? 200 : 300));
+      }, i * (isMobile ? 150 : 200));
     });
   }
   
@@ -203,17 +242,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!headlinesVisible || animationInProgress) return;
     
     animationInProgress = true;
+    console.log('Hiding headlines animation started');
     
-    headlines.forEach((headline, index) => {
+    // Create a shuffled array of indices for random disappearance order
+    const indices = headlines.map((_, i) => i);
+    shuffleArray(indices);
+    
+    indices.forEach((index, i) => {
       setTimeout(() => {
-        headline.style.opacity = '0';
+        if (headlines[index]) {
+          headlines[index].style.opacity = '0';
+          console.log(`Hid headline ${index + 1}`);
+        }
         
         // When last headline is hidden, update state
-        if (index === headlines.length - 1) {
+        if (i === indices.length - 1) {
           headlinesVisible = false;
           animationInProgress = false;
+          console.log('All headlines now hidden');
         }
-      }, index * (isMobile ? 100 : 150));
+      }, i * (isMobile ? 75 : 100));
     });
   }
   
@@ -241,19 +289,35 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Handle window resize
   window.addEventListener('resize', debounce(function() {
-    // Recalculate whether we're on mobile
+    // Check if mobile status changed
     const wasMobile = isMobile;
     const isMobileNow = window.innerWidth < 768;
     
-    // If mobile status changed, reload the page to regenerate headlines
+    console.log(`Window resized: ${window.innerWidth}x${window.innerHeight}, Mobile: ${isMobileNow}`);
+    
+    // If mobile status changed, reload the page
     if (wasMobile !== isMobileNow) {
+      console.log('Mobile status changed, reloading page');
       location.reload();
+    } else {
+      // Recalculate positions and update headlines
+      console.log('Recalculating headline positions');
+      generateGridPositions();
+      
+      headlines.forEach((headline, i) => {
+        if (i < positions.length) {
+          headline.style.top = `${positions[i].top}%`;
+          headline.style.left = `${positions[i].left}%`;
+        }
+      });
     }
   }, 250));
   
-  // Initial check
+  // Initial scroll check
   handleScroll();
 });
+
+
 
 
 //---------------------------------
