@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load the pre-processed data
 
-  fetch('data/processed-accelerationism.json')
+  fetch('./Data/processed-accelerationism.json')
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
