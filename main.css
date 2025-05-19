@@ -348,3 +348,26 @@ STACKED BAR CHART
   justify-content: center;
   align-items: center;
 }
+
+#floating-image-container {
+  position: absolute;
+  top: -120px; /* Adjust to position above the bar */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none; /* Allow clicking through the image */
+}
+
+#floating-image-container img {
+  width: 150px; /* Adjust as needed */
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#floating-image-container img.active {
+  opacity: 1;
+}
