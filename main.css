@@ -313,3 +313,38 @@ BEESWARM VISUALIZATION
     min-height: 500px; /* Ensure minimum height */
 }
 }
+
+
+/*
+--------------------
+--------------------
+STACKED BAR CHART
+--------------------
+--------------------*/
+
+
+/* Add these to your main.css file */
+#section-3 {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+#section-3 .captions {
+  width: 50%;
+  left: 0;
+  position: absolute;
+}
+
+#section-3 .visualization-container {
+  width: 50%;
+  margin-left: 50%;
+}
+
+#section-3 .sticky-viz {
+  position: sticky;
+  top: 20vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
