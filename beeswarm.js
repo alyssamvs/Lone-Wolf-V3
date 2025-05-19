@@ -66,6 +66,7 @@ function initializeVisualization(events) {
     `translate(${margin.left}, ${margin.top - 400})` :  // Lift up by 30px on mobile
     `translate(${margin.left}, ${margin.top})`);       // Normal position on desktop
     
+    
     // Create scale for circle size based on casualties
     const maxCasualties = d3.max(events, d => d.incident.casualties.total) || 1;
     const radiusScale = d3.scaleSqrt()
@@ -200,6 +201,21 @@ allYears.forEach((year, i) => {
         });
       });
     });
+
+
+  //   svg.selectAll(".year-center-marker")
+  // .data(yearPositions)
+  // .enter()
+  // .append("circle")
+  // .attr("class", "year-center-marker")
+  // .attr("cx", d => d.x)
+  // .attr("cy", d => d.y)
+  // .attr("r", 5)  // Small circle to mark the center
+  // .attr("fill", "red")  // Make it stand out
+  // .attr("stroke", "black")
+  // .attr("stroke-width", 1)
+  // .append("title")  // Add tooltip with year info
+  // .text(d => `Year: ${d.year}, Count: ${d.count}`);
     
     // Create event circles
     const eventCircles = svg.selectAll(".event")
@@ -320,7 +336,7 @@ const visualizationObserver = new IntersectionObserver((entries) => {
   });
   
   // 2) Hook it up to the container
-  const vizTrigger = document.getElementById('section-3');
+  const vizTrigger = document.getElementById('section-4');
   console.log('🐝 Now observing:', vizTrigger);
   visualizationObserver.observe(vizTrigger);
 

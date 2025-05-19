@@ -1,24 +1,24 @@
-﻿Event,Date,Method,Target,City,LAT,LON,Region,Country,Killed
-Unabomber Mail Bombings,01/01/1978,Explosives,"University professors, business executives","Durham, North Carolina, United States of America",35.996653,-78.9018053,Multiple,United States,3
-Oklahoma City Bombings,19/04/1995,Explosives,Alfred P. Murrah Federal Building,Oklahoma City,35.4729886,-97.5170536,Oklahoma,United States,168
-Oslo/Utoya mass shooting,22/07/2011,"Explosives, Mass Shooting",Oslo government offices and Workers' Youth League (AUF) summer camp in Utoya.,Oslo,59.9133301,10.7389701,Multiple,Norway,77
-Warsaw Bomb Attempt,20/11/2012,Explosives,"Polish Government building, politicians",Warsaw,52.2337172,21.0714322,Mazowsze,Poland,1
-Charleston Shooting,17/06/2015,Mass Shooting,Baptist church (black community),Charleston,32.7884363,-79.9399309,South Carolina,United States,9
-Quebec City Mosque Shooting,21/01/2017,Mass Shooting,Islamic Cultural Centre of Quebec City,Quebec City,46.8137431,-71.2084061,Quebec,Canada,6
-Attomwaffen Division Shooting,19/05/2017,Shooting,Jeremy Himmelman Andrew Oneschuk,Tampa,27.9477595,-82.458444,Florida,United States,2
-Finsbury Park Van Attack,17/06/2017,Vehicle Ramming,Crowd of Muslim pedestrians,London,51.4893335,-0.1440551,England,United Kingdom,1
-Macerata Shooting,03/02/2018,Mass Shooting,African migrants,Macerata,43.1529781,13.1508822,Marche,Italy,1
-Pittsburgh Synagogue Shooting,27/10/2018,Mass Shooting,Tree of Life Synagogue,Pittsburgh,40.4416941,-79.9900861,Pennsylvania,United States,11
-Christchurch Shooting,15/03/2019,Mass Shooting,Al Noor Mosque,Christchurch,-43.530955,172.6364343,Canterbury,New Zealand,51
-Poway synagogue shooting,27/04/2019,Mass Shooting,Synagogue,Poway,32.9628234,-117.035864,California,United States,1
-El Paso Walmart Attack,03/08/2019,Mass Shooting,Largely Hispanic shoppers at a Walmart,El Paso,31.7601164,-106.4870404,Texas,United States,23
-Bærum mosque shooting,10/08/2019,Mass Shooting,Mosque,Bærum,59.9289639,10.4997108,Viken,Norway,1
-Halle Synagogue Attack,08/10/2019,Mass Shooting,Synagogue,Halle,51.4825041,11.9705452,Saxony-Anhalt,Germany,2
-Kankaanpää Terror Plot,01/12/2019,Explosives,Niinisalo Refugee Centre,Kankaanpää,61.8027147,22.3965338,Satakunta,Finland,1
-Hanau Shootings,19/02/2020,Mass Shooting,Shisha bars,Hanau,50.132881,8.9169797,Hesse,Germany,11
-Eslöv School Stabbing,19/08/2021,Stabbing,Källeberg School,Eslöv,55.8374959,13.3036265,Skåne,Sweden,1
-Buffalo Supermarket Shooting,14/05/2022,Mass Shooting,"Tops Friendly Markets, supermarket in predominantly black neighbourhood.",Buffalo,42.8867166,-78.8783922,New York,United States,10
-Highland Park parade shooting,04/07/2022,Mass Shooting,4th of July parade,Highland Park,32.8334607,-96.7919454,Illinois,United States,7
-Bratislava Shooting,12/10/2022,Mass Shooting,LGBT bar,Bratislava,48.1592603,17.1396587,Bratislava,Slovakia,3
-Club Q Shooting,19/11/2022,Mass Shooting,"Club Q, LGBT bar",Colorado Springs,38.8339578,-104.825348,Colorado,United States,5
-Dollar General Jacksonville Shooting,26/08/2023,Mass Shooting,Dollar General store,Jacksonville,30.3321838,-81.655651,Florida,United States,4
+﻿Perpetrator,Event,Date,Method,Target,City,LAT,LON,Region,Country,Killed
+Ted Kaczinsky,Unabomber Mail Bombings,01/01/1978,Explosives,"University professors, business executives","Durham, North Carolina, United States of America",35.996653,-78.9018053,Multiple,United States,3
+"Timothy McVeigh, Terry Nichols",Oklahoma City Bombings,19/04/1995,Explosives,Alfred P. Murrah Federal Building,Oklahoma City,35.4729886,-97.5170536,Oklahoma,United States,168
+Anders Breivik,Oslo/Utoya mass shooting,22/07/2011,"Explosives, Mass Shooting",Oslo government offices and Workers' Youth League (AUF) summer camp in Utoya.,Oslo,59.9133301,10.7389701,Multiple,Norway,77
+Brunon Kwiecień,Warsaw Bomb Attempt,20/11/2012,Explosives,"Polish Government building, politicians",Warsaw,52.2337172,21.0714322,Mazowsze,Poland,1
+Dylann Roof,Charleston Shooting,17/06/2015,Mass Shooting,Baptist church (black community),Charleston,32.7884363,-79.9399309,South Carolina,United States,9
+Alexandre Bissonnette,Quebec City Mosque Shooting,21/01/2017,Mass Shooting,Islamic Cultural Centre of Quebec City,Quebec City,46.8137431,-71.2084061,Quebec,Canada,6
+Devon Arthurs,Attomwaffen Division Shooting,19/05/2017,Shooting,Jeremy Himmelman Andrew Oneschuk,Tampa,27.9477595,-82.458444,Florida,United States,2
+Darren Osborne,Finsbury Park Van Attack,17/06/2017,Vehicle Ramming,Crowd of Muslim pedestrians,London,51.4893335,-0.1440551,England,United Kingdom,1
+Luca Traini,Macerata Shooting,03/02/2018,Mass Shooting,African migrants,Macerata,43.1529781,13.1508822,Marche,Italy,1
+Robert Bowers,Pittsburgh Synagogue Shooting,27/10/2018,Mass Shooting,Tree of Life Synagogue,Pittsburgh,40.4416941,-79.9900861,Pennsylvania,United States,11
+Brenton Tarrant,Christchurch Shooting,15/03/2019,Mass Shooting,Al Noor Mosque,Christchurch,-43.530955,172.6364343,Canterbury,New Zealand,51
+John Earnest,Poway synagogue shooting,27/04/2019,Mass Shooting,Synagogue,Poway,32.9628234,-117.035864,California,United States,1
+Patrick Crusius,El Paso Walmart Attack,03/08/2019,Mass Shooting,Largely Hispanic shoppers at a Walmart,El Paso,31.7601164,-106.4870404,Texas,United States,23
+Philip Manshaus,Bærum mosque shooting,10/08/2019,Mass Shooting,Mosque,Bærum,59.9289639,10.4997108,Viken,Norway,1
+Stephan Balliet,Halle Synagogue Attack,08/10/2019,Mass Shooting,Synagogue,Halle,51.4825041,11.9705452,Saxony-Anhalt,Germany,2
+,Kankaanpää Terror Plot,01/12/2019,Explosives,Niinisalo Refugee Centre,Kankaanpää,61.8027147,22.3965338,Satakunta,Finland,1
+Tobias Rathjen,Hanau Shootings,19/02/2020,Mass Shooting,Shisha bars,Hanau,50.132881,8.9169797,Hesse,Germany,11
+Hugo Jackson,Eslöv School Stabbing,19/08/2021,Stabbing,Källeberg School,Eslöv,55.8374959,13.3036265,Skåne,Sweden,1
+Payton Gendron,Buffalo Supermarket Shooting,14/05/2022,Mass Shooting,"Tops Friendly Markets, supermarket in predominantly black neighbourhood.",Buffalo,42.8867166,-78.8783922,New York,United States,10
+"Robert ""Bobby"" Crimo III",Highland Park parade shooting,04/07/2022,Mass Shooting,4th of July parade,Highland Park,32.8334607,-96.7919454,Illinois,United States,7
+Juraj Krajcik,Bratislava Shooting,12/10/2022,Mass Shooting,LGBT bar,Bratislava,48.1592603,17.1396587,Bratislava,Slovakia,3
+Anderson Lee Aldrich,Club Q Shooting,19/11/2022,Mass Shooting,"Club Q, LGBT bar",Colorado Springs,38.8339578,-104.825348,Colorado,United States,5
+Ryan Palmeter,Dollar General Jacksonville Shooting,26/08/2023,Mass Shooting,Dollar General store,Jacksonville,30.3321838,-81.655651,Florida,United States,4
