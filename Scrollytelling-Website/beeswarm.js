@@ -74,7 +74,7 @@ const margin = {
     bottom: isMobile ? 10 : 80, 
     left: isMobile ? 10 : 40
 };
-const width = 200 - margin.left - margin.right;
+const width = 1100 - margin.left - margin.right;
 const height = isMobile ? 
     (window.innerHeight - margin.top - margin.bottom) : 
     ("100vh" - margin.top - margin.bottom);

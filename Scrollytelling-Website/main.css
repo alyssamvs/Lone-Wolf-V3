@@ -295,10 +295,17 @@ BEESWARM VISUALIZATION
 #section-4 .visualization-container {
   width: 50%;
   margin-left: 50%;
-  min-height: 400vh; /* Match section height */
+  position: sticky;
+  top: 10vh;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: visible;
+  border:red 2px solid;
 }
 
-#section-4 .sticky-viz {
+/* #section-4 .sticky-viz {
   position: sticky;
   top: 10vh;
   height: 80vh;
@@ -306,12 +313,15 @@ BEESWARM VISUALIZATION
   justify-content: center;
   align-items: flex-start;
   overflow: hidden;
-  /* border: 2px solid red;  */
-}
+} 
+*/
 
 #section-4 #visualization {
   width: 100%;
-  height: auto;
+  height: 80vh;
+  border:blue 2px solid;
+  align-items: center;
+  justify-content: center;
 }
 
 
