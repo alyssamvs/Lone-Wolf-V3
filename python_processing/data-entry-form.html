@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Entry</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        textarea { height: 60px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        button.copy-btn { background: #28a745; }
+        button.copy-btn:hover { background: #218838; }
+        #output { margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        .section-header { background: #e9ecef; padding: 10px; margin: 20px 0 10px 0; border-radius: 4px; font-weight: bold; }
+        code { background: #f8f9fa; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        .workflow { background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Add New Entry to Combined Dataset</h1>
+    
+    <div class="workflow">
+        <h3>📋 Workflow:</h3>
+        <ol>
+            <li>Fill out this form and generate JSON</li>
+            <li>Copy and run the terminal command to add the entry</li>
+            <li>Repeat for more entries</li>
+            <li>When finished adding all entries, run: <code>node process-to-beeswarm.js</code></li>
+        </ol>
+    </div>
+    
+    <form id="entryForm">
+        <div class="section-header">Basic Information</div>
+        
+        <div class="form-group">
+            <label for="perpetrator">Perpetrator Name:</label>
+            <input type="text" id="perpetrator" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="event">Event Name/Description:</label>
+            <input type="text" id="event" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="date">Date (DD/MM/YYYY):</label>
+                <input type="text" id="date" pattern="\d{2}/\d{2}/\d{4}" placeholder="DD/MM/YYYY">
+            </div>
+            <div class="form-group">
+                <label for="number">Number (sequence):</label>
+                <input type="number" id="number" min="1">
+            </div>
+        </div>
+        
+        <div class="section-header">Incident Details</div>
+        
+        <div class="form-group">
+            <label for="method">Method:</label>
+            <select id="method">
+                <option value="Mass Shooting">Mass Shooting</option>
+                <option value="Explosives">Explosives</option>
+                <option value="Vehicle Ramming">Vehicle Ramming</option>
+                <option value="Stabbing">Stabbing</option>
+                <option value="Threat/Harassment">Threat/Harassment</option>
+                <option value="Firearms: military">Firearms: military</option>
+                <option value="Chemical or biological weapon deployment">Chemical or biological weapon deployment</option>
+                <option value="Shooting">Shooting</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="target">Target:</label>
+            <input type="text" id="target" placeholder="e.g., Synagogue, Federal building, Mosque, etc.">
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" id="city">
+            </div>
+            <div class="form-group">
+                <label for="region">State/Region:</label>
+                <input type="text" id="region">
+            </div>
+            <div class="form-group">
+                <label for="country">Country:</label>
+                <input type="text" id="country" value="United States">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="killed">Killed:</label>
+                <input type="number" id="killed" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="wounded">Wounded:</label>
+                <input type="number" id="wounded" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="age">Perpetrator Age:</label>
+                <input type="number" id="age" min="1" max="100">
+            </div>
+        </div>
+        
+        <div class="section-header">Demographics</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="race">Race/Ethnicity:</label>
+                <select id="race">
+                    <option value="White/Caucasian">White/Caucasian</option>
+                    <option value="Black/African American">Black/African American</option>
+                    <option value="Hispanic/Latino">Hispanic/Latino</option>
+                    <option value="Asian">Asian</option>
+                    <option value="Other">Other</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="religion">Religion:</label>
+                <select id="religion">
+                    <option value="Christian">Christian</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Jewish">Jewish</option>
+                    <option value="Atheist">Atheist</option>
+                    <option value="Unknown">Unknown</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="veteranStatus">Veteran Status:</label>
+            <select id="veteranStatus">
+                <option value="Civilian">Civilian</option>
+                <option value="Former Active duty">Former Active duty</option>
+                <option value="Active duty">Active duty</option>
+                <option value="Unknown">Unknown</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="hateCrime">Hate Crime:</label>
+            <select id="hateCrime">
+                <option value="Unknown">Unknown</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        
+        <div class="section-header">Ideology & Online Presence</div>
+        
+        <div class="form-group">
+            <label for="ideology">Ideology:</label>
+            <input type="text" id="ideology" placeholder="e.g., White nationalism, Far-right extremism, Anti-government">
+        </div>
+        
+        <div class="form-group">
+            <label for="groupAffiliation">Group Affiliation:</label>
+            <input type="text" id="groupAffiliation" value="None/Unknown">
+        </div>
+        
+        <div class="form-group">
+            <label for="affiliations">Affiliations (detailed):</label>
+            <textarea id="affiliations" placeholder="Detailed affiliation information"></textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="livestream">Livestream:</label>
+                <select id="livestream">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="manifesto">Manifesto:</label>
+                <select id="manifesto">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="socialMedia">Social Media:</label>
+            <input type="text" id="socialMedia" placeholder="e.g., Active on 8chan, 4chan, Twitter, etc.">
+        </div>
+        
+        <div class="form-group">
+            <label for="influences">Influences:</label>
+            <textarea id="influences" placeholder="Describe influences, inspirations, or connections to other perpetrators"></textarea>
+        </div>
+        
+        <button type="submit">Generate JSON Entry</button>
+    </form>
+    
+    <div id="output"></div>
+    
+    <script>
+        document.getElementById('entryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values and create entry matching your combined dataset structure
+            const entry = {
+                perpetrator: document.getElementById('perpetrator').value,
+                event: document.getElementById('event').value,
+                date: document.getElementById('date').value,
+                method: document.getElementById('method').value,
+                target: document.getElementById('target').value,
+                city: document.getElementById('city').value,
+                region: document.getElementById('region').value,
+                country: document.getElementById('country').value,
+                killed: parseInt(document.getElementById('killed').value) || 0,
+                wounded: parseInt(document.getElementById('wounded').value) || 0,
+                age: parseInt(document.getElementById('age').value) || 0,
+                number: parseInt(document.getElementById('number').value) || 0,
+                gender: document.getElementById('gender').value,
+                race: document.getElementById('race').value,
+                religion: document.getElementById('religion').value,
+                veteranStatus: document.getElementById('veteranStatus').value,
+                hateCrime: document.getElementById('hateCrime').value,
+                ideology: document.getElementById('ideology').value,
+                groupAffiliation: document.getElementById('groupAffiliation').value,
+                affiliations: document.getElementById('affiliations').value || 'None/Unknown',
+                livestream: document.getElementById('livestream').value,
+                manifesto: document.getElementById('manifesto').value,
+                socialMedia: document.getElementById('socialMedia').value || 'Unknown',
+                influences: document.getElementById('influences').value || 'Unknown',
+                source: 'manual_entry'
+            };
+            
+            const jsonEntry = JSON.stringify(entry, null, 2);
+            const terminalCommand = `node add-entry.js '${JSON.stringify(entry).replace(/'/g, "\\\'")}'`;
+            
+            document.getElementById('output').innerHTML = `
+                <h3>✅ New Entry Generated:</h3>
+                <pre style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto;">${jsonEntry}</pre>
+                
+                <h4>🚀 To add this entry:</h4>
+                <p><strong>Copy and run this command in your terminal:</strong></p>
+                <pre style="background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word;">${terminalCommand}</pre>
+                
+                <div style="margin: 10px 0;">
+                    <button class="copy-btn" onclick="copyToClipboard()">📋 Copy JSON Entry</button>
+                    <button class="copy-btn" onclick="copyCommand()">💻 Copy Terminal Command</button>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                    <strong>📝 Next Steps:</strong>
+                    <ol style="margin: 10px 0;">
+                        <li>Copy and run the terminal command above</li>
+                        <li>Add more entries by filling the form again</li>
+                        <li>When finished adding all entries, run: <code>node process-to-beeswarm.js</code></li>
+                        <li>Update your beeswarm to use the processed data</li>
+                    </ol>
+                </div>
+            `;
+            
+            window.generatedJSON = jsonEntry;
+            window.terminalCommand = terminalCommand;
+        });
+        
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.generatedJSON);
+            alert('📋 JSON entry copied to clipboard!');
+        }
+        
+        function copyCommand() {
+            navigator.clipboard.writeText(window.terminalCommand);
+            alert('💻 Terminal command copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
