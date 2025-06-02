@@ -4,6 +4,13 @@
 //------------------
 //------------------
 
+//code from Nicola
+
+
+
+
+//------------------
+
 const isMobile = window.innerWidth < 600;
 
 
@@ -67,11 +74,13 @@ const margin = {
     bottom: isMobile ? 10 : 80, 
     left: isMobile ? 10 : 40
 };
-const width = 1100 - margin.left - margin.right;
+const width = 200 - margin.left - margin.right;
 const height = isMobile ? 
     (window.innerHeight - margin.top - margin.bottom) : 
-    (4000 - margin.top - margin.bottom);
+    ("100vh" - margin.top - margin.bottom);
 
+  let zoom = d3.zoom()
+    .on('zoom', zoomed)    
 // Create SVG (keep your existing SVG code)
 const svg = d3.select("#visualization")
     .append("svg")
@@ -79,6 +88,7 @@ const svg = d3.select("#visualization")
     .attr("height", height + margin.top + margin.bottom)
     .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
     .attr("preserveAspectRatio", "xMidYMid meet")
+    .call(zoom)
     .append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
@@ -251,6 +261,13 @@ const links = svg.append("g")
     .attr("x2", d => eventsByName.get(d.target).x)
     .attr("y2", d => eventsByName.get(d.target).y);
 
+
+
+    function zoomed(e) {
+      const { x, y, k } = e.transform
+      svg.attr("transform", "translate(" + x + "," + y + ")" + " scale(" + k + ")")
+    }
+
 // Create event circles
 const eventCircles = svg.selectAll(".event")
     .data(validEvents)
@@ -265,7 +282,17 @@ const eventCircles = svg.selectAll(".event")
     .attr("opacity", 0.8)
     .attr("stroke", "none")
     .attr("cx", d => d.x)
-    .attr("cy", d => d.y);
+    .attr("cy", d => d.y)
+    .on("click", function(e, d) {
+      d3.select(this).style("fill","red")
+      const tgtX = +d3.select(this).attr("cx")
+      const tgtY = +d3.select(this).attr("cy")
+      const k = 3
+      console.log(tgtX,tgtY,k)
+      d3.select("svg").transition()
+        .call(zoom.transform, d3.zoomIdentity
+          .scale(k).translate(-tgtX +((width/k)/2) , -tgtY+((height/k)/2)))}
+        )
 
 console.log('Created visual elements');
 
