@@ -241,55 +241,25 @@ BEESWARM VISUALIZATION
 --------------------
 --------------------*/
 
-.visualization-container {
+/* .visualization-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   height:400vh;
-}
-
-.beeswarm-captions {
-  position: absolute;
-  top: 50vh;
-  width: 100%;
-  height: 300vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  padding: 20vh 0;
-  z-index: 1000;
-}
-
-.beeswarm-caption {
-  width: 300px;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.sticky-viz {
-  position: sticky;
-  top: 15vh;
-  height: 600px;
-  z-index: 1;
-  /* background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); */
-}
+} */
 
 .tooltip {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 10px 15px;
+  /* padding: 10px 15px; */
   border-radius: 4px;
   font-size: 12px;
   pointer-events: none;
   z-index: 10;
   max-width: 300px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  /* height: 0; */
 }
 
 .year-label {
@@ -301,51 +271,46 @@ BEESWARM VISUALIZATION
 }
 
 /* Section 4 - Network Visualization */
+
+/* Section 4 - Network Visualization */
 #section-4 {
   display: flex;
   flex-direction: row;
   position: relative;
-  min-height: 800vh;
+  min-height: 400vh; /* Make it tall enough for scrolling */
 }
 
 #section-4 .captions {
   width: 50%;
   left: 0;
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20vh 0;
+  z-index: 1000;
 }
 
 #section-4 .visualization-container {
   width: 50%;
   margin-left: 50%;
-  min-height: 100vh;
-  height: 800vh;
+  min-height: 400vh; /* Match section height */
 }
 
 #section-4 .sticky-viz {
-  position: relative;
-  top: 5vh; /* Reduce top margin to use more screen space */
-  height: auto; /* Let it size itself */
-  min-height: 90vh; /* Minimum height */
-  max-height: none; /* Remove height restrictions */
+  position: static;
+  top: 10vh;
+  height: auto;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   overflow: visible;
 }
 
-@media screen and (max-width: 600px) {
-.sticky-viz {
-    top: 0;
-    height: 100vh; /* Full viewport height */
-    border-radius: 0; /* Remove rounded corners */
-    margin: 0 -10px; /* Extend to edges */
-    /* padding: 10px 0; */
-}
-
-#visualization {
-    height: 100vh; /* Use 70% of viewport height */
-    min-height: 500px; /* Ensure minimum height */
-}
+#section-4 #visualization {
+  width: 100%;
+  height: 2000px !important;
 }
 
 

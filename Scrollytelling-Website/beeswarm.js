@@ -70,7 +70,7 @@ const margin = {
 const width = 1100 - margin.left - margin.right;
 const height = isMobile ? 
     (window.innerHeight - margin.top - margin.bottom) : 
-    (2000 - margin.top - margin.bottom);
+    (4000 - margin.top - margin.bottom);
 
 // Create SVG (keep your existing SVG code)
 const svg = d3.select("#visualization")
