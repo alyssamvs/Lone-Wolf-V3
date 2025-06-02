@@ -108,9 +108,10 @@
       .caption {
         width: 300px;
         padding: 1.5rem;
-        background: rgba(255, 255, 255);
-        border-radius: 8px;
+        background: rgba(255, 255, 255); 
+        /* border-radius: 8px; */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
       }
 
       /*
@@ -247,7 +248,7 @@ BEESWARM VISUALIZATION
   height:400vh;
 }
 
-.captions {
+.beeswarm-captions {
   position: absolute;
   top: 50vh;
   width: 100%;
@@ -260,7 +261,7 @@ BEESWARM VISUALIZATION
   z-index: 1000;
 }
 
-.caption {
+.beeswarm-caption {
   width: 300px;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.85);
@@ -297,6 +298,39 @@ BEESWARM VISUALIZATION
   font-weight: bold;
   fill: #555;
   pointer-events: none;
+}
+
+/* Section 4 - Network Visualization */
+#section-4 {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  min-height: 800vh;
+}
+
+#section-4 .captions {
+  width: 50%;
+  left: 0;
+  position: absolute;
+}
+
+#section-4 .visualization-container {
+  width: 50%;
+  margin-left: 50%;
+  min-height: 100vh;
+  height: 800vh;
+}
+
+#section-4 .sticky-viz {
+  position: relative;
+  top: 5vh; /* Reduce top margin to use more screen space */
+  height: auto; /* Let it size itself */
+  min-height: 90vh; /* Minimum height */
+  max-height: none; /* Remove height restrictions */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: visible;
 }
 
 @media screen and (max-width: 600px) {
