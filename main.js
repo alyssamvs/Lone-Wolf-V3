@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
     headline.style.left = `${positions[i].left}%`;
     
     // Set background image
-    headline.style.backgroundImage = `url('../headlines/headline${i+1}.png')`;
+    headline.style.backgroundImage = `url('./headlines/headline${i+1}.png')`;
     headline.style.backgroundSize = 'contain';
     headline.style.backgroundRepeat = 'no-repeat';
     

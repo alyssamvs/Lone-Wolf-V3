@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Load the pre-processed data
 
 Promise.all([
-  fetch('../Data/processed-combined-dataset.json').then(response => response.json()),
-  fetch('../Data/sourcetargetaccel.csv').then(response => response.text())
+  fetch('./Data/processed-combined-dataset.json').then(response => response.json()),
+  fetch('./Data/sourcetargetaccel.csv').then(response => response.text())
 ]).then(([eventsData, csvText]) => {
   
 // Parse CSV connections
