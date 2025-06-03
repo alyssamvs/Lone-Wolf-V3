@@ -82,8 +82,8 @@
           height = window.innerHeight;
 
     // Load JSON and CSV data
-    d3.json("./Data/lone_actor_dict.json").then(tooltipData => {
-        d3.csv("./Data/sourcetargetaccel.csv").then(links => {
+    d3.json("../Data/lone_actor_dict.json").then(tooltipData => {
+        d3.csv("../Data/sourcetargetaccel.csv").then(links => {
             // Process nodes from links data
             let nodes = links.map(link => [link.source, link.target])
                 .flat()

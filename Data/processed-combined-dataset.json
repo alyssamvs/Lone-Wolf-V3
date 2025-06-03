@@ -12887,55 +12887,6 @@
     "source": "lone_actor"
   },
   {
-    "id": "entry_264_Robert_Bowers",
-    "date": {
-      "year": 2018,
-      "month": 10,
-      "day": 27,
-      "full": "2018-10-27",
-      "raw": "2018-10-27"
-    },
-    "perpetrator": {
-      "name": "Robert Bowers",
-      "age": 46,
-      "gender": "Unknown",
-      "race": "Unknown",
-      "religion": "Unknown",
-      "veteran": {
-        "isVeteran": false,
-        "service": "Unknown"
-      }
-    },
-    "incident": {
-      "location": {
-        "city": "Pittsburgh",
-        "state": "Pennsylvania",
-        "country": "United States",
-        "formatted": "Pittsburgh, Pennsylvania, United States"
-      },
-      "method": "Mass Shooting",
-      "casualties": {
-        "killed": 11,
-        "injured": 6,
-        "total": 17
-      }
-    },
-    "ideology": {
-      "affiliation": "White nationalism, antisemitism",
-      "hateCrime": false,
-      "groupAffiliation": "Supporter of the Rise Above Movement (RAM) and Proud Boy, links to several neo-nazi organisations"
-    },
-    "loneActorData": {
-      "livestream": "No",
-      "manifesto": "No",
-      "socialMedia": "Gab, active on other right wing sites",
-      "influences": "He wrote \"\"Screw your optics, I'm going in\"\" on Gab on the day of his attack, referencing the ongoing debate about the optics of white nationalism in the wake of the Charlottesville riot.\n\nHis writing also echoed Dylann Roof of the Charleston murders.",
-      "affiliations": "Supporter of the Rise Above Movement (RAM) and Proud Boy, links to several neo-nazi organisations"
-    },
-    "narrative": "Pittsburgh Synagogue Shooting",
-    "source": "lone_actor"
-  },
-  {
     "id": "entry_265_Brenton_Tarrant",
     "date": {
       "year": 2019,
