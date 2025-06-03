@@ -326,16 +326,13 @@ function updateRays() {
 //------------------
 //------------------
 
+let currentSimulation = null;
 
 // Function for scattered layout
 function applyScatteredLayout() {
-    // Show the visualization when scattered layout starts
-    d3.select("#visualization").classed("active", true);
-    
-    // Create simulation but don't run it yet
     const simulation = d3.forceSimulation(validEvents)
-        .alphaDecay(0.005) // Slow decay
-        .velocityDecay(0.8) // High friction for slower movement
+        .alphaDecay(0.005)
+        .velocityDecay(0.8)
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("charge", d3.forceManyBody().strength(-100))
         .force("collide", d3.forceCollide().radius(d => getCasualtyRadius(d.incident.casualties.total) + 20).strength(0.4))
@@ -344,11 +341,10 @@ function applyScatteredLayout() {
         .force("y", d3.forceY(height / 2).strength(0.1))
         .on("tick", () => {
             updateAllElements();
-        })
-        .stop(); // Stop immediately
-    
-    // Manually restart with slow progression
+        });
+
     simulation.alpha(1).restart();
+    currentSimulation = simulation;
 }
 
 
@@ -471,56 +467,57 @@ const centerY = periodYPositions[periodIndex];
     // Add small random scatter
     event.x += (Math.random() - 0.5) * 20;
     event.y += (Math.random() - 0.5) * 20;
+
+    validEvents.forEach(event => {
+        event.originalX = event.x;
+        event.originalY = event.y;
+    });
 });
 
-// Function to apply original 5-year cluster layout
+
+
+//------------------
+//------------------
+//ORIGINAL LAYOUT FUNCTION
+//------------------
+//------------------
+
+
 function applyOriginalLayout() {
-    // Remove any year labels
-    svg.selectAll(".year-label").remove();
-    
-    // Apply your original positioning logic
-    validEvents.forEach((event, i) => {
-        // Calculate periods backwards from maxYear
-        const yearsFromMax = maxYear - event.date.year;
-        const period = Math.floor(yearsFromMax / 5);
-        const endYear = maxYear - period * 5;
-        const startYear = endYear - 4;
-        const periodKey = `${startYear}-${endYear}`;
-        const periodIndex = periods.indexOf(periodKey);
-        const eventsInPeriod = eventsByPeriod.get(periodKey);
-        const eventIndexInPeriod = eventsInPeriod.indexOf(event);
-        
-        // Choose cluster radius based on number of events
-        let clusterRadius;
-        if (eventsInPeriod.length >= 20) {
-            clusterRadius = largeClusterRadius;
-        } else if (eventsInPeriod.length >= 10) {
-            clusterRadius = mediumClusterRadius;
-        } else {
-            clusterRadius = smallClusterRadius;
+    if (currentSimulation) {
+        currentSimulation.stop();
+    }
+    if (collisionSimulation) {
+        collisionSimulation.stop();
+    }
+
+    // Reset positions to saved state
+    validEvents.forEach(event => {
+        if (event.savedX !== undefined && event.savedY !== undefined) {
+            event.x = event.savedX;
+            event.y = event.savedY;
         }
-        
-        // Position for this period
-        const centerX = width / 2;
-        const centerY = periodYPositions[periodIndex];
-        
-        if (eventsInPeriod.length === 1) {
-            event.x = centerX;
-            event.y = centerY;
-        } else {
-            const angle = (eventIndexInPeriod / eventsInPeriod.length) * 2 * Math.PI;
-            event.x = centerX + Math.cos(angle) * clusterRadius;
-            event.y = centerY + Math.sin(angle) * clusterRadius;
-        }
-        
-        // Add small random scatter
-        event.x += (Math.random() - 0.5) * 20;
-        event.y += (Math.random() - 0.5) * 20;
     });
-    
-    // Update all visual elements
-    updateAllElements();
+
+    // Smoothly transition all visual elements
+    eventCircles.transition().duration(1000)
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+    manifestoCircles.transition().duration(1000)
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+    // Update other elements after transition
+    setTimeout(() => {
+        updateLinks();
+        updateRays();
+    }, 1000);
+
+    currentLayout = 'restored';
+    console.log('Layout restored successfully');
 }
+
 //------------------
 //------------------
 //CREATING LINKS
@@ -740,8 +737,10 @@ console.log('Added interactivity');
 //------------------
 //------------------
 
+let collisionSimulation = null;
+
 // Optional: Add a light force simulation to prevent overlaps (accounting for spikes)
-const simulation = d3.forceSimulation(validEvents)
+collisionSimulation = d3.forceSimulation(validEvents)
     .force("collide", d3.forceCollide().radius(d => {
         const baseRadius = getCasualtyRadius(d.incident.casualties.total);
         const livestreamValue = (d.loneActorData && d.loneActorData.livestream) || d.livestream;
@@ -756,7 +755,7 @@ const simulation = d3.forceSimulation(validEvents)
     .stop();
 
 // Run simulation briefly to resolve overlaps
-for (let i = 0; i < 50; ++i) simulation.tick();
+for (let i = 0; i < 50; ++i) collisionSimulation.tick();
 
 // Update positions after simulation
 eventCircles
@@ -767,7 +766,7 @@ manifestoCircles
     .attr("cx", d => d.x)
     .attr("cy", d => d.y);
 
-
+    d3.select("#visualization").classed("active", true);
 
 //------------------
 //------------------
@@ -806,17 +805,19 @@ function handleCaptionStep(stepIndex) {
                 .duration(1000)
                 .call(zoom.transform, d3.zoomIdentity);
 
-                applyScatteredLayout();
+            // applyScatteredLayout();
                 break;
 
         case 1:
           
             removeAllLabels();
-            applyOriginalLayout();
-
+            // applyOriginalLayout();
                 break;
         
         case 2:
+
+        //HEre I want to restore the original layout
+
             // Caption 4: Focus on Timothy McVeigh (Oklahoma City)
             const mcveigh = validEvents.find(e => e.perpetrator.name.includes('McVeigh'));
             if (mcveigh) {
@@ -889,7 +890,6 @@ window.addEventListener('scroll', handleSection4Scroll);
 //------------------
 
 
-// Function to add labels to specific nodes
 // Function to add labels to specific nodes
 function addLabelsToNodes(nodeNames, labelClass = 'caption-label') {
     // Remove existing labels of this class
