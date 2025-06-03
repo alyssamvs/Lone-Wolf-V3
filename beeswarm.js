@@ -5,11 +5,6 @@
 //------------------
 
 
-
-
-
-//------------------
-
 const isMobile = window.innerWidth < 600;
 
 
@@ -21,7 +16,7 @@ Promise.all([
   fetch('./Data/processed-combined-dataset.json').then(response => response.json()),
   fetch('./Data/sourcetargetaccel.csv').then(response => response.text())
 ]).then(([eventsData, csvText]) => {
-  
+    
 // Parse CSV connections
 
 const lines = csvText.trim().split('\n').slice(1); // Skip header
@@ -53,10 +48,6 @@ const connections = lines.map(line => {
     throw new Error('No events found in the data');
   } 
 
-
-  console.log('Loaded events:', eventsData.length);
-console.log('Loaded connections:', connections.length);
-
 // Initialize the visualization with both datasets
 
 initializeVisualization(eventsData, connections);
@@ -79,6 +70,7 @@ function initializeVisualization(events, connections) {
 const allConnections = connections;
     
 // Setup visualization dimensions (keep your existing responsive code)
+
 const margin = {
     top: isMobile ? 10 : 30, 
     right: isMobile ? 10 : 40, 
@@ -90,9 +82,59 @@ const height = isMobile ?
     (window.innerHeight - margin.top - margin.bottom) : 
     (window.innerHeight - margin.top - margin.bottom);
 
-  let zoom = d3.zoom()
-    .on('zoom', zoomed)    
-// Create SVG (keep your existing SVG code)
+
+//------------------
+//------------------
+//ZOOM
+//------------------
+//------------------    
+
+let zoom = d3.zoom()
+    .scaleExtent([0.1, 5])
+    .on('zoom', zoomed);
+
+// Create separate zoom behaviors
+let panOnly = d3.zoom()
+    .scaleExtent([1, 1]) // Lock scale to 1 (no zooming)
+    .on('zoom', zoomed);
+
+let panAndZoom = d3.zoom()
+    .scaleExtent([0.1, 5])
+    .on('zoom', zoomed);
+
+// Zoom toggle functionality
+let zoomEnabled = false;
+
+const zoomToggle = document.getElementById('zoom-toggle');
+zoomToggle.addEventListener('click', function() {
+    zoomEnabled = !zoomEnabled;
+    
+    if (zoomEnabled) {
+        d3.select("#visualization").select("svg").call(panAndZoom);
+        zoom = panAndZoom; // Update the global zoom reference
+        zoomToggle.classList.add('active');
+        zoomToggle.title = "Disable zoom (panning still enabled)";
+    } else {
+        d3.select("#visualization").select("svg").call(panOnly);
+        zoom = panOnly; // Update the global zoom reference
+        zoomToggle.classList.remove('active');
+        zoomToggle.title = "Enable zoom (panning always enabled)";
+    }
+});
+
+// Initially set to pan-only mode
+d3.select("#visualization").select("svg").call(panOnly);
+zoom = panOnly; // Set the global zoom reference
+
+
+//------------------
+//------------------
+//CREATE SVG
+//------------------
+//------------------
+
+
+// Create SVG 
 const svg = d3.select("#visualization")
     .append("svg")
     .attr("width", "100%")
@@ -128,6 +170,7 @@ svg.append("defs").append("marker")
 //------------------
 
 // Filter valid events and sort by date
+
 const validEvents = events.filter(d => d.date && d.date.year)
 .sort((a, b) => {
     if (a.date.year !== b.date.year) return a.date.year - b.date.year;
@@ -138,12 +181,14 @@ const validEvents = events.filter(d => d.date && d.date.year)
 console.log('Valid events after filtering:', validEvents.length);
 
 // Create name mapping for connections
+
 const eventsByName = new Map();
 validEvents.forEach(event => {
 eventsByName.set(event.perpetrator.name, event);
 });
 
 // Filter connections to only include events we have data for
+
 const validConnections = allConnections.filter(conn => 
 eventsByName.has(conn.source) && eventsByName.has(conn.target)
 );
@@ -151,6 +196,7 @@ eventsByName.has(conn.source) && eventsByName.has(conn.target)
 console.log('Valid connections found:', validConnections.length);
 
 // Count connections for each perpetrator
+
 const allConnectionCounts = new Map();
 validConnections.forEach(conn => {
 allConnectionCounts.set(conn.source, (allConnectionCounts.get(conn.source) || 0) + 1);
@@ -158,10 +204,11 @@ allConnectionCounts.set(conn.target, (allConnectionCounts.get(conn.target) || 0)
 });
 
 
-
-//DEBUGGING
-
-
+//------------------
+//------------------
+//CHANGING CIRCLES COLOR, SIZE, RAYS
+//------------------
+//------------------
 
 
 
@@ -205,7 +252,114 @@ function createRays(parent, x, y, radius, hasLivestream, circleColor) {
   }
 }
 
-console.log('Helper functions defined');
+//------------------
+//------------------
+//UPDATE EVERY THING FUNCTION
+//------------------
+//------------------
+
+// Function to update all visual elements positions
+function updateAllElements() {
+    eventCircles.attr("cx", d => d.x).attr("cy", d => d.y);
+    manifestoCircles.attr("cx", d => d.x).attr("cy", d => d.y);
+    updateLinks();
+    updateRays();
+}
+
+// Function to update links
+function updateLinks() {
+    links.attr("x1", d => {
+        const source = eventsByName.get(d.source);
+        const target = eventsByName.get(d.target);
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const sourceRadius = getCasualtyRadius(source.incident.casualties.total);
+        return source.x + (dx * sourceRadius) / distance;
+    })
+    .attr("y1", d => {
+        const source = eventsByName.get(d.source);
+        const target = eventsByName.get(d.target);
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const sourceRadius = getCasualtyRadius(source.incident.casualties.total);
+        return source.y + (dy * sourceRadius) / distance;
+    })
+    .attr("x2", d => {
+        const source = eventsByName.get(d.source);
+        const target = eventsByName.get(d.target);
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const targetRadius = getCasualtyRadius(target.incident.casualties.total);
+        return target.x - (dx * (targetRadius + 10)) / distance;
+    })
+    .attr("y2", d => {
+        const source = eventsByName.get(d.source);
+        const target = eventsByName.get(d.target);
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const targetRadius = getCasualtyRadius(target.incident.casualties.total);
+        return target.y - (dy * (targetRadius + 10)) / distance;
+    });
+}
+
+// Function to update rays
+function updateRays() {
+    raysGroup.selectAll(".ray").remove();
+    validEvents.forEach(event => {
+        const livestreamValue = (event.loneActorData && event.loneActorData.livestream) || event.livestream;
+        if (livestreamValue === 'Yes') {
+            const radius = getCasualtyRadius(event.incident.casualties.total);
+            const allConnections = allConnectionCounts.get(event.perpetrator.name) || 0;
+            const circleColor = getConnectionColor(allConnections);
+            createRays(raysGroup, event.x, event.y, radius, livestreamValue, circleColor);
+        }
+    });
+}
+
+//------------------
+//------------------
+//INITIAL FORCE SCATTER
+//------------------
+//------------------
+
+
+// Function for scattered layout
+function applyScatteredLayout() {
+    // Show the visualization when scattered layout starts
+    d3.select("#visualization").classed("active", true);
+    
+    // Create simulation but don't run it yet
+    const simulation = d3.forceSimulation(validEvents)
+        .alphaDecay(0.005) // Slow decay
+        .velocityDecay(0.8) // High friction for slower movement
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("charge", d3.forceManyBody().strength(-100))
+        .force("collide", d3.forceCollide().radius(d => getCasualtyRadius(d.incident.casualties.total) + 20).strength(0.4))
+        .force("radial", d3.forceRadial(200, width / 2, height / 2).strength(0.1))
+        .force("x", d3.forceX(width / 2).strength(0.1))
+        .force("y", d3.forceY(height / 2).strength(0.1))
+        .on("tick", () => {
+            updateAllElements();
+        })
+        .stop(); // Stop immediately
+    
+    // Manually restart with slow progression
+    simulation.alpha(1).restart();
+}
+
+
+
+//------------------
+//------------------
+//GROUP EVENTS
+//------------------
+//------------------
+
+
 
 // Group events by 5-year periods for clustering
 
@@ -213,6 +367,7 @@ const minYear = d3.min(validEvents, d => d.date.year);
 const maxYear = d3.max(validEvents, d => d.date.year);
 
 const eventsByPeriod = new Map();
+
 validEvents.forEach(event => {
     // Calculate periods backwards from maxYear
     const yearsFromMax = maxYear - event.date.year;
@@ -230,10 +385,15 @@ validEvents.forEach(event => {
 const periods = Array.from(eventsByPeriod.keys()).sort();
 console.log('Created periods:', periods);
 
-// Position events in clusters
-const periodSpacing = isMobile ? 300 : 400;
-const largeClusterRadius = isMobile ? 100 : 140;
-const mediumClusterRadius = isMobile ? 70 : 100;
+//------------------
+//------------------
+//CLUSTER EVENTS
+//------------------
+//------------------
+
+const periodSpacing = isMobile ? 450 : 650;
+const largeClusterRadius = isMobile ? 150 : 200;
+const mediumClusterRadius = isMobile ? 100 : 120
 const smallClusterRadius = isMobile ? 40 : 60;
 
 validEvents.forEach((event, i) => {
@@ -259,7 +419,45 @@ validEvents.forEach((event, i) => {
     
     // Position for this period
     const centerX = width / 2;
-    const centerY = (periodIndex * periodSpacing) + 200;
+
+//------------------
+//------------------
+//CLUSTER POSITIONS
+//------------------
+//------------------
+
+// Calculate cumulative Y position instead of using periodIndex
+let cumulativeY = 200; // Starting position
+
+// You'll need to calculate this before the main positioning loop
+// First, create an array to store Y positions for each period
+const periodYPositions = [];
+
+periods.forEach((periodKey, periodIndex) => {
+    const eventsInPeriod = eventsByPeriod.get(periodKey);
+    
+    if (periodIndex === 0) {
+        periodYPositions[periodIndex] = cumulativeY;
+    } else {
+        // Add spacing based on previous cluster size
+        const prevEventsInPeriod = eventsByPeriod.get(periods[periodIndex - 1]);
+        let spacing;
+        if (prevEventsInPeriod.length >= 20) {
+            spacing = periodSpacing;
+        } else if (prevEventsInPeriod.length >= 10) {
+            spacing = periodSpacing * 0.7;
+        } else if (prevEventsInPeriod.length >= 2) {
+            spacing = periodSpacing * 0.5;
+        } else {
+            spacing = periodSpacing * 2;
+        }
+        cumulativeY += spacing;
+        periodYPositions[periodIndex] = cumulativeY;
+    }
+});
+
+// Then in your main positioning loop, use:
+const centerY = periodYPositions[periodIndex];
     
     if (eventsInPeriod.length === 1) {
         event.x = centerX;
@@ -275,19 +473,62 @@ validEvents.forEach((event, i) => {
     event.y += (Math.random() - 0.5) * 20;
 });
 
-console.log('Positioned all events');
-
-// Debug: Check some position values
-console.log('Sample positions:');
-validEvents.slice(0, 5).forEach(event => {
-    console.log(`${event.perpetrator.name}: x=${event.x}, y=${event.y}, year=${event.date.year}`);
-});
-console.log(`Width: ${width}, Height: ${height}`);
-
-
+// Function to apply original 5-year cluster layout
+function applyOriginalLayout() {
+    // Remove any year labels
+    svg.selectAll(".year-label").remove();
+    
+    // Apply your original positioning logic
+    validEvents.forEach((event, i) => {
+        // Calculate periods backwards from maxYear
+        const yearsFromMax = maxYear - event.date.year;
+        const period = Math.floor(yearsFromMax / 5);
+        const endYear = maxYear - period * 5;
+        const startYear = endYear - 4;
+        const periodKey = `${startYear}-${endYear}`;
+        const periodIndex = periods.indexOf(periodKey);
+        const eventsInPeriod = eventsByPeriod.get(periodKey);
+        const eventIndexInPeriod = eventsInPeriod.indexOf(event);
+        
+        // Choose cluster radius based on number of events
+        let clusterRadius;
+        if (eventsInPeriod.length >= 20) {
+            clusterRadius = largeClusterRadius;
+        } else if (eventsInPeriod.length >= 10) {
+            clusterRadius = mediumClusterRadius;
+        } else {
+            clusterRadius = smallClusterRadius;
+        }
+        
+        // Position for this period
+        const centerX = width / 2;
+        const centerY = periodYPositions[periodIndex];
+        
+        if (eventsInPeriod.length === 1) {
+            event.x = centerX;
+            event.y = centerY;
+        } else {
+            const angle = (eventIndexInPeriod / eventsInPeriod.length) * 2 * Math.PI;
+            event.x = centerX + Math.cos(angle) * clusterRadius;
+            event.y = centerY + Math.sin(angle) * clusterRadius;
+        }
+        
+        // Add small random scatter
+        event.x += (Math.random() - 0.5) * 20;
+        event.y += (Math.random() - 0.5) * 20;
+    });
+    
+    // Update all visual elements
+    updateAllElements();
+}
+//------------------
+//------------------
+//CREATING LINKS
+//------------------
+//------------------
 
 // Create links first (so they appear behind circles)
-// Create links first (so they appear behind circles)
+
 const links = svg.append("g")
     .attr("class", "links")
     .selectAll("line")
@@ -334,12 +575,23 @@ const links = svg.append("g")
         return target.y - (dy * (targetRadius + 10)) / distance;  // Big gap of 20
     });
 
+//------------------
+//------------------
+//ZOOM FUNCTION
+//------------------
+//------------------
 
 
     function zoomed(e) {
       const { x, y, k } = e.transform
       svg.attr("transform", "translate(" + x + "," + y + ")" + " scale(" + k + ")")
     }
+
+//------------------
+//------------------
+//CREATE CIRCLES
+//------------------
+//------------------
 
 // Create event circles
 const eventCircles = svg.selectAll(".event")
@@ -367,9 +619,12 @@ const eventCircles = svg.selectAll(".event")
           .scale(k).translate(-tgtX +((width/k)/2) , -tgtY+((height/k)/2)))}
         )
 
-console.log('Created visual elements');
 
-//INNER CIRCLES FOR MANIFESTOS 
+//------------------
+//------------------
+//MANIFESTO CIRCLES
+//------------------
+//------------------
 
 // Add inner concentric circles for manifestos
 const manifestoEvents = validEvents.filter(d => {
@@ -384,7 +639,7 @@ const manifestoCircles = svg.selectAll(".manifesto-circle")
   .attr("class", "manifesto-circle")
   .attr("r", d => {
       const outerRadius = getCasualtyRadius(d.incident.casualties.total);
-      return Math.max(2, outerRadius * 0.5); // Inner circle is 50% of outer radius
+      return Math.max(2, outerRadius * 0.6); // Inner circle is 50% of outer radius
   })
   .attr("fill", "none")
   .attr("stroke", "#FFFFFF")
@@ -393,9 +648,13 @@ const manifestoCircles = svg.selectAll(".manifesto-circle")
   .attr("cx", d => d.x)
   .attr("cy", d => d.y);
 
-console.log('Added manifesto circles');
 
-//RAYS FOR LIVESTREAM
+
+//------------------
+//------------------
+//LIVESTREAM RAYS
+//------------------
+//------------------
 
 // Create rays for livestreamed attacks (behind circles)
 const raysGroup = svg.append("g").attr("class", "rays");
@@ -410,9 +669,12 @@ validEvents.forEach(event => {
     }
 });
 
-console.log('Added rays for livestreamed events');
-
+//------------------
+//------------------
 //TOOLTIP
+//------------------
+//------------------
+
 
 // Add tooltip functionality
 eventCircles
@@ -472,7 +734,11 @@ eventCircles
 
 console.log('Added interactivity');
 
-//Force Simulation 
+//------------------
+//------------------
+//FORCE SIMULATION
+//------------------
+//------------------
 
 // Optional: Add a light force simulation to prevent overlaps (accounting for spikes)
 const simulation = d3.forceSimulation(validEvents)
@@ -503,63 +769,172 @@ manifestoCircles
 
 
 
-//update lines position 
+//------------------
+//------------------
+//UPDATE ALL
+//------------------
+//------------------
 
-links
-    .attr("x1", d => {
-        const source = eventsByName.get(d.source);
-        const target = eventsByName.get(d.target);
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const sourceRadius = getCasualtyRadius(source.incident.casualties.total);
-        return source.x + (dx * sourceRadius) / distance;
-    })
-    .attr("y1", d => {
-        const source = eventsByName.get(d.source);
-        const target = eventsByName.get(d.target);
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const sourceRadius = getCasualtyRadius(source.incident.casualties.total);
-        return source.y + (dy * sourceRadius) / distance;
-    })
-    .attr("x2", d => {
-        const source = eventsByName.get(d.source);
-        const target = eventsByName.get(d.target);
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const targetRadius = getCasualtyRadius(target.incident.casualties.total);
-        return target.x - (dx * (targetRadius + 10)) / distance;
-    })
-    .attr("y2", d => {
-        const source = eventsByName.get(d.source);
-        const target = eventsByName.get(d.target);
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const targetRadius = getCasualtyRadius(target.incident.casualties.total);
-        return target.y - (dy * (targetRadius + 10)) / distance;
-    });
+updateAllElements();
 
-// Update rays positions
-raysGroup.selectAll(".ray").remove();
-validEvents.forEach(event => {
-    const livestreamValue = (event.loneActorData && event.loneActorData.livestream) || event.livestream;
-    if (livestreamValue === 'Yes') {
-        const radius = getCasualtyRadius(event.incident.casualties.total);
-        const allConnections = allConnectionCounts.get(event.perpetrator.name) || 0;
-        const circleColor = getConnectionColor(allConnections);
-        createRays(raysGroup, event.x, event.y, radius, livestreamValue, circleColor);
+
+
+//------------------
+//------------------
+//SCROLL-TRIGGERED ZOOM
+//------------------
+//------------------
+
+// Function to zoom to a specific location
+function zoomToLocation(x, y, scale = 2, duration = 1000) {
+    d3.select("svg").transition()
+        .duration(duration)
+        .call(zoom.transform, d3.zoomIdentity
+            .scale(scale)
+            .translate(-x + (width/scale)/2, -y + (height/scale)/2)
+        );
+}
+
+// Function to handle each caption step
+function handleCaptionStep(stepIndex) {
+    switch(stepIndex) {
+        case 0:
+            // Caption 1: Overview - zoom out to see everything
+                removeAllLabels();
+
+                d3.select("svg").transition()
+                .duration(1000)
+                .call(zoom.transform, d3.zoomIdentity);
+
+                applyScatteredLayout();
+                break;
+
+        case 1:
+          
+            removeAllLabels();
+            applyOriginalLayout();
+
+                break;
+        
+        case 2:
+            // Caption 4: Focus on Timothy McVeigh (Oklahoma City)
+            const mcveigh = validEvents.find(e => e.perpetrator.name.includes('McVeigh'));
+            if (mcveigh) {
+                addLabelsToNodes(['McVeigh']);
+                zoomToLocation(mcveigh.x, mcveigh.y, 2.5);
+            }
+            break;
+            
+        case 3:
+            // Caption 2: Focus on Anders Breivik (highly influential)
+            const breivik = validEvents.find(e => e.perpetrator.name.includes('Breivik'));
+            if (breivik) {
+                addLabelsToNodes(['Breivik']);
+                zoomToLocation(breivik.x, breivik.y, 2.5);
+            }
+            break;
+            
+        case 4:
+            // Caption 3: Focus on Brenton Tarrant (Christchurch shooter)
+            const tarrant = validEvents.find(e => e.perpetrator.name.includes('Tarrant'));
+            if (tarrant) {
+                addLabelsToNodes(['Tarrant']);
+                zoomToLocation(tarrant.x, tarrant.y, 2.5);
+            }
+            break;
+            
+        case 5:
+            // Caption 4: Focus on Payton Gendron
+            const gendron = validEvents.find(e => e.perpetrator.name.includes('Gendron'));
+            if (gendron) {
+                
+                zoomToLocation(gendron.x, gendron.y, 2.5);
+            }
+            break;
+
+        case 6:
+            // Caption 4: Focus on Crimo
+            const henderson = validEvents.find(e => e.perpetrator.name.includes('Henderson'));
+            if (henderson) {
+                zoomToLocation(henderson.x, henderson.y, 2.5);
+            }
+            break;
     }
-});
+}
 
-// links
-//     .attr("x1", d => eventsByName.get(d.source).x)
-//     .attr("y1", d => eventsByName.get(d.source).y)
-//     .attr("x2", d => eventsByName.get(d.target).x)
-//     .attr("y2", d => eventsByName.get(d.target).y);
+// Scroll handler for Section 4 captions
+function handleSection4Scroll() {
+    const captions = document.querySelectorAll('#section-4 .caption');
+    const viewportMiddle = window.innerHeight / 2;
+    
+    captions.forEach((caption, index) => {
+        const rect = caption.getBoundingClientRect();
+        const captionCenter = (rect.top + rect.bottom) / 2;
+        const isActive = Math.abs(captionCenter - viewportMiddle) < 200;
+        
+        if (isActive) {
+            handleCaptionStep(index);
+        }
+    });
+}
+
+// Add scroll listener
+window.addEventListener('scroll', handleSection4Scroll);
+
+
+//------------------
+//------------------
+//LABELS ON SCROLL
+//------------------
+//------------------
+
+
+// Function to add labels to specific nodes
+// Function to add labels to specific nodes
+function addLabelsToNodes(nodeNames, labelClass = 'caption-label') {
+    // Remove existing labels of this class
+    svg.selectAll(`.${labelClass}`).remove();
+    
+    // Add new labels
+    nodeNames.forEach(nodeName => {
+        const event = validEvents.find(e => e.perpetrator.name.includes(nodeName));
+        console.log(`Looking for "${nodeName}":`, event ? 'FOUND' : 'NOT FOUND');
+        if (event) {
+            console.log(`Adding label for: ${event.perpetrator.name}`);
+            svg.append("text")
+                .attr("class", labelClass)
+                .attr("x", event.x)
+                .attr("y", event.y - getCasualtyRadius(event.incident.casualties.total) - 15)
+                .attr("text-anchor", "middle")
+                .style("font-family", "Arial, sans-serif")
+                .style("font-size", "14px")
+                .style("font-weight", "bold")
+                .style("fill", "#333")
+                .style("stroke", "white")
+                .style("stroke-width", "2px")
+                .style("paint-order", "stroke")
+                .text(event.perpetrator.name)
+                .style("opacity", 0)
+                .transition()
+                .duration(500)
+                .style("opacity", 1);
+        } else {
+            // Let's see what names are available
+            console.log('Available names containing this term:');
+            validEvents.filter(e => e.perpetrator.name.toLowerCase().includes(nodeName.toLowerCase()))
+                .forEach(e => console.log(` - ${e.perpetrator.name}`));
+        }
+    });
+}
+
+// Function to remove all caption labels
+function removeAllLabels(labelClass = 'caption-label') {
+    svg.selectAll(`.${labelClass}`)
+        .transition()
+        .duration(300)
+        .style("opacity", 0)
+        .remove();
+}
 
    }
 });

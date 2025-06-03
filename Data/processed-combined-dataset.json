@@ -1,5 +1,54 @@
 [
   {
+    "id": "entry_1_Randy_Weaver",
+    "date": {
+      "year": 1992,
+      "month": 8,
+      "day": 21,
+      "full": "1992-08-21",
+      "raw": "1992-08-21"
+    },
+    "perpetrator": {
+      "name": "Randy Weaver",
+      "age": 0,
+      "gender": "Male",
+      "race": "White/Caucasian",
+      "religion": "Christian",
+      "veteran": {
+        "isVeteran": true,
+        "service": "Former Active duty"
+      }
+    },
+    "incident": {
+      "location": {
+        "city": "Boundary County",
+        "state": "Idaho",
+        "country": "United States",
+        "formatted": "Boundary County, Idaho, United States"
+      },
+      "method": "Siege",
+      "casualties": {
+        "killed": 3,
+        "injured": 2,
+        "total": 5
+      }
+    },
+    "ideology": {
+      "affiliation": "Rightist: unspecified",
+      "hateCrime": false,
+      "groupAffiliation": "Aryan Nation"
+    },
+    "loneActorData": {
+      "livestream": "Unknown",
+      "manifesto": "Unknown",
+      "socialMedia": "Unknown",
+      "influences": "Unknown",
+      "affiliations": "Aryan Nation"
+    },
+    "narrative": "The Ruby Ridge standoff was a 1992 incident in Ruby Ridge, Idaho, involving federal law enforcement and Randy Weaver, a survivalist and his family. It began when U.S. Marshals attempted to arrest Weaver on a bench warrant for failing to appear in court on firearms charges. The resulting standoff led to a shootout, the deaths of a Deputy Marshal, Weaver's teenage son, and Weaver's wife.",
+    "source": "manual_entry"
+  },
+  {
     "id": "entry_1_Carol_E._Howe",
     "date": {
       "year": 1997,
@@ -12455,7 +12504,7 @@
       "raw": "1978-01-01"
     },
     "perpetrator": {
-      "name": "Ted Kazcynski",
+      "name": "Ted Kaczynski",
       "age": 36,
       "gender": "Unknown",
       "race": "Unknown",
@@ -13220,8 +13269,8 @@
       "groupAffiliation": "None/Unknown"
     },
     "loneActorData": {
-      "livestream": "Yes",
-      "manifesto": "No",
+      "livestream": "No",
+      "manifesto": "Yes",
       "socialMedia": "Telegram; had previously contacted the authorities with about conspiracy theories",
       "influences": "\"After the attack, the shooter went back to his apartment, killed his mother and then committed suicide. \n\nIn addition to his racist and xenophobic motivations, the shooter also expressed his frustration at his lack of relationships with women.\"",
       "affiliations": "None/Unknown"

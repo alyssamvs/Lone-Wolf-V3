@@ -241,13 +241,6 @@ BEESWARM VISUALIZATION
 --------------------
 --------------------*/
 
-/* .visualization-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  height:400vh;
-} */
-
 .tooltip {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8);
@@ -277,12 +270,14 @@ BEESWARM VISUALIZATION
   display: flex;
   flex-direction: row;
   position: relative;
-  min-height: 400vh; /* Make it tall enough for scrolling */
+  min-height: 800vh; /* Make it tall enough for scrolling */
 }
 
 #section-4 .captions {
-  width: 50%;
+  width:40%;
+  height: 800vh;
   left: 0;
+  top:-20vh;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -293,36 +288,76 @@ BEESWARM VISUALIZATION
 }
 
 #section-4 .visualization-container {
-  width: 50%;
-  margin-left: 50%;
+  width: 60%;
+  margin-left: 40%;
   position: sticky;
-  top: 10vh;
+  top: 0vh;
   height: 80vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   overflow: visible;
-  border:red 2px solid;
+  /* border:red 2px solid; */
 }
-
-/* #section-4 .sticky-viz {
-  position: sticky;
-  top: 10vh;
-  height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow: hidden;
-} 
-*/
 
 #section-4 #visualization {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+#section-4 #visualization.active {
+  opacity: 1;
   width: 100%;
-  height: 80vh;
-  border:blue 2px solid;
+  height: 100vh;
+  /* border:blue 2px solid; */
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
+
+/*
+--------------------
+--------------------
+Zoom Button
+--------------------
+--------------------*/
+
+.zoom-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  border: 2px solid #333;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  font-size: 18px;
+}
+
+.zoom-toggle-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.zoom-toggle-btn.active {
+  background: rgba(76, 175, 80, 0.9);
+  border-color: #4CAF50;
+  color: white;
+}
+
+.zoom-toggle-btn.active::before {
+  content: "🔍"; /* Zoom enabled */
+}
+
+.zoom-toggle-btn:not(.active)::before {
+  content: "↔️"; }/* Pan-only mode */
+
 
 
 /*
