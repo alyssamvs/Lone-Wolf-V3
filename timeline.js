@@ -222,6 +222,24 @@ function drawTimeline(events, connectionCounts, width, height, margin) {
 function drawTimelineEvents() {
     const { svg, g, xScale, events, connectionCounts, getConnectionColor, getCasualtyRadius } = window.timelineViz;
     
+    
+    //create links
+    // Create connections/links first (so they appear behind circles)
+        const links = g.append("g")
+        .attr("class", "timeline-links")
+        .selectAll("line")
+        .data(window.timelineData.connections)
+        .enter()
+        .append("line")
+        .attr("stroke", "#666")
+        .attr("stroke-opacity", 0.4)
+        .attr("stroke-width", 1.5)
+        .attr("x1", d => window.timelineData.eventsByName.get(d.source).x)
+        .attr("y1", d => window.timelineData.eventsByName.get(d.source).y)
+        .attr("x2", d => window.timelineData.eventsByName.get(d.target).x)
+        .attr("y2", d => window.timelineData.eventsByName.get(d.target).y);
+    
+    
     // Create tooltip
     const tooltip = d3.select("body").append("div")
         .attr("class", "timeline-tooltip")
@@ -294,6 +312,7 @@ function drawTimelineEvents() {
     window.timelineViz.eventCircles = eventCircles;
     window.timelineViz.raysGroup = raysGroup;
     window.timelineViz.tooltip = tooltip;
+    
 
     // Add manifesto indicators (inner circles)
     const manifestoEvents = events.filter(d => {
@@ -360,11 +379,66 @@ function drawTimelineEvents() {
                 .transition()
                 .duration(200)
                 .attr("opacity", 0.8)
-                .attr("stroke-width", 1);
+                .attr("stroke-width", 0);
+            
+            // Also clear any connection highlights when mousing out
+            // (but only if we haven't clicked on anything)
+            if (!window.timelineViz.clickedNode) {
+                clearConnectionHighlights();
+            }
             
             tooltip.transition()
                 .duration(300)
                 .style("opacity", 0);
+        })
+
+        .on("click", function(event, d) {
+
+            window.timelineViz.clickedNode = d.perpetrator.name;
+
+            // Clear any existing highlights and labels
+            clearConnectionHighlights();
+            
+            // Find all connections involving this node
+            const nodeConnections = window.timelineData.connections.filter(conn => 
+                conn.source === d.perpetrator.name || conn.target === d.perpetrator.name
+            );
+            
+            if (nodeConnections.length === 0) return;
+            
+            // Get connected node names
+            const connectedNodes = new Set();
+            nodeConnections.forEach(conn => {
+                if (conn.source === d.perpetrator.name) {
+                    connectedNodes.add(conn.target);
+                } else {
+                    connectedNodes.add(conn.source);
+                }
+            });
+            
+            // Highlight the connection lines
+            window.timelineViz.links
+            .style("stroke", link => {
+                if (link.source === d.perpetrator.name) {
+                    return "#ff0000"; // Red if clicked node is the source (influences others)
+                } else if (link.target === d.perpetrator.name) {
+                    return "#0066ff"; // Blue if clicked node is the target (influenced by others)
+                } else {
+                    return "#666"; // Default gray for unrelated connections
+                }
+            })
+            .style("stroke-width", link => 
+                (link.source === d.perpetrator.name || link.target === d.perpetrator.name) ? 3 : 1.5
+            )
+            .style("stroke-opacity", link => 
+                (link.source === d.perpetrator.name || link.target === d.perpetrator.name) ? 1 : 0.2
+            );
+            
+            // Add labels to connected nodes
+            addConnectionLabels(connectedNodes);
+        })
+        .on("dblclick", function(event, d) {
+            clearConnectionHighlights();
         });
 
     console.log('Timeline events drawn:', events.length);
@@ -374,6 +448,7 @@ function drawTimelineEvents() {
     window.timelineViz.manifestoCircles = manifestoCircles;
     window.timelineViz.raysGroup = raysGroup;
     window.timelineViz.tooltip = tooltip;
+    window.timelineViz.links = links;
 }
 
 //------------------
@@ -412,9 +487,32 @@ function initializeFilterControls() {
         updateTimelineStretch(value);
     });
     
-    
-    // Apply filters button
-    document.getElementById('apply-filters').addEventListener('click', applyTimelineFilters);
+   // Update display values when sliders change AND apply filters automatically
+document.getElementById('start-year').addEventListener('input', function() {
+    document.getElementById('start-year-display').textContent = this.value;
+    applyTimelineFilters();
+});
+
+document.getElementById('end-year').addEventListener('input', function() {
+    document.getElementById('end-year-display').textContent = this.value;
+    applyTimelineFilters();
+});
+
+document.getElementById('casualties-slider').addEventListener('input', function() {
+    document.getElementById('casualties-display').textContent = this.value;
+    applyTimelineFilters();
+});
+
+document.getElementById('connections-slider').addEventListener('input', function() {
+    document.getElementById('connections-display').textContent = this.value;
+    applyTimelineFilters();
+});
+
+// Add automatic filtering for checkboxes
+document.getElementById('filter-livestream').addEventListener('change', applyTimelineFilters);
+document.getElementById('filter-manifesto').addEventListener('change', applyTimelineFilters);
+document.getElementById('filter-neither').addEventListener('change', applyTimelineFilters); 
+
     
     // Reset filters button
     document.getElementById('reset-filters').addEventListener('click', resetTimelineFilters);
@@ -523,6 +621,37 @@ function redrawTimelineWithFilteredData(filteredEvents) {
     g.selectAll(".timeline-event").remove();
     g.selectAll(".timeline-manifesto").remove();
     g.selectAll(".timeline-rays").selectAll("*").remove();
+    
+        // Clear existing elements
+    g.selectAll(".timeline-event").remove();
+    g.selectAll(".timeline-manifesto").remove();
+    g.selectAll(".timeline-rays").selectAll("*").remove();
+    g.selectAll(".timeline-links").selectAll("*").remove(); // Add this line
+
+    // Filter connections to only include those between visible events
+    const filteredEventNames = new Set(filteredEvents.map(e => e.perpetrator.name));
+    const filteredConnections = window.timelineData.connections.filter(conn => 
+        filteredEventNames.has(conn.source) && filteredEventNames.has(conn.target)
+    );
+
+    // Redraw links with filtered connections
+    const links = g.select(".timeline-links")
+        .selectAll("line")
+        .data(filteredConnections)
+        .enter()
+        .append("line")
+        .attr("stroke", "#666")
+        .attr("stroke-opacity", 0.4)
+        .attr("stroke-width", 1.5)
+        .attr("x1", d => window.timelineData.eventsByName.get(d.source).x)
+        .attr("y1", d => window.timelineData.eventsByName.get(d.source).y)
+        .attr("x2", d => window.timelineData.eventsByName.get(d.target).x)
+        .attr("y2", d => window.timelineData.eventsByName.get(d.target).y);
+
+    // Update the stored links reference
+    window.timelineViz.links = links;
+    
+    
     
     // Redraw rays
     function createTimelineRays(event) {
@@ -645,6 +774,55 @@ function redrawTimelineWithFilteredData(filteredEvents) {
             window.timelineViz.tooltip.transition()
                 .duration(300)
                 .style("opacity", 0);
+        })
+
+        .on("click", function(event, d) {
+            // Track the clicked node
+            window.timelineViz.clickedNode = d.perpetrator.name;
+            
+            // Clear any existing highlights and labels
+            clearConnectionHighlights();
+            
+            // Find all connections involving this node
+            const nodeConnections = filteredConnections.filter(conn => 
+                conn.source === d.perpetrator.name || conn.target === d.perpetrator.name
+            );
+            
+            if (nodeConnections.length === 0) return;
+            
+            // Get connected node names
+            const connectedNodes = new Set();
+            nodeConnections.forEach(conn => {
+                if (conn.source === d.perpetrator.name) {
+                    connectedNodes.add(conn.target);
+                } else {
+                    connectedNodes.add(conn.source);
+                }
+            });
+            
+            // Highlight the connection lines
+            window.timelineViz.links
+                .style("stroke", link => {
+                    if (link.source === d.perpetrator.name) {
+                        return "#ff0000";
+                    } else if (link.target === d.perpetrator.name) {
+                        return "#0066ff";
+                    } else {
+                        return "#666";
+                    }
+                })
+                .style("stroke-width", link => 
+                    (link.source === d.perpetrator.name || link.target === d.perpetrator.name) ? 3 : 1.5
+                )
+                .style("stroke-opacity", link => 
+                    (link.source === d.perpetrator.name || link.target === d.perpetrator.name) ? 1 : 0.2
+                );
+            
+            // Add labels to connected nodes
+            addConnectionLabels(connectedNodes);
+        })
+        .on("dblclick", function(event, d) {
+            clearConnectionHighlights();
         });
     
     console.log('Timeline redrawn with', filteredEvents.length, 'events');
@@ -737,6 +915,13 @@ function updateVisualizationDuringSimulation() {
             window.timelineViz.manifestoCircles
                 .attr("cx", d => d.x)
                 .attr("cy", d => d.y);
+        }
+        if (window.timelineViz.links) {
+            window.timelineViz.links
+                .attr("x1", d => window.timelineData.eventsByName.get(d.source).x)
+                .attr("y1", d => window.timelineData.eventsByName.get(d.source).y)
+                .attr("x2", d => window.timelineData.eventsByName.get(d.target).x)
+                .attr("y2", d => window.timelineData.eventsByName.get(d.target).y);
         }
         
         // Update rays efficiently
@@ -840,6 +1025,57 @@ function updateTimelineStretch(stretchFactor) {
                 d3.zoomIdentity.translate(-newRightHalfStart, 0));
     }, 100);
 
+}
+
+// Helper functions for connection highlighting
+function clearConnectionHighlights() {
+    // Clear the clicked node tracking
+    if (window.timelineViz) {
+        window.timelineViz.clickedNode = null;
+    }
+    
+    // Reset all connection lines to default appearance
+    if (window.timelineViz && window.timelineViz.links) {
+        window.timelineViz.links
+            .style("stroke", "#666")
+            .style("stroke-width", 1.5)
+            .style("stroke-opacity", 0.4);
+    }
+    
+    // Remove any existing connection labels
+    if (window.timelineViz && window.timelineViz.g) {
+        window.timelineViz.g.selectAll(".connection-label").remove();
+    }
+}
+
+function addConnectionLabels(connectedNodeNames) {
+    if (!window.timelineViz || !window.timelineViz.g) return;
+    
+    // Add labels to each connected node
+    connectedNodeNames.forEach(nodeName => {
+        const nodeData = window.timelineData.eventsByName.get(nodeName);
+        if (nodeData) {
+            const radius = window.timelineViz.getCasualtyRadius(nodeData.incident.casualties.total);
+            
+            window.timelineViz.g.append("text")
+                .attr("class", "connection-label")
+                .attr("x", nodeData.x)
+                .attr("y", nodeData.y - radius - 10)
+                .attr("text-anchor", "middle")
+                .style("font-family", "Futura, Arial, sans-serif")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .style("fill", "#ff0000")
+                .style("stroke", "white")
+                .style("stroke-width", "2px")
+                .style("paint-order", "stroke")
+                .text(nodeName)
+                .style("opacity", 0)
+                .transition()
+                .duration(300)
+                .style("opacity", 1);
+        }
+    });
 }
 
 // Call this after timeline is created

@@ -440,6 +440,7 @@ SECTION 5 - TIMELINE
   min-height: 100vh;
   max-height: 100vh;
   position: relative;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 .timeline-container {
@@ -458,10 +459,10 @@ SECTION 5 - TIMELINE
   margin-bottom: 20px;
 }
 
-.timeline-controls h2 {
+.timeline-controls h3 {
   margin: 0 0 20px 0;
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: white;
 }
 
@@ -476,6 +477,10 @@ SECTION 5 - TIMELINE
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+#section-5 * {
+  font-family: Helvetica, Arial, sans-serif !important;
 }
 
 .filter-group label {
@@ -554,11 +559,13 @@ SECTION 5 - TIMELINE
 #reset-filters {
   background: #666;
   color: white;
+  width: 120px;
 }
 
 #apply-filters {
   background: #fff;
   color: #000;
+  width: 120px;
 }
 
 #reset-filters:hover {
