@@ -68,6 +68,8 @@ function initializeVisualization(events, connections) {
 
 // Store connections for later use
 const allConnections = connections;
+
+let currentLayout = 'original';
     
 // Setup visualization dimensions (keep your existing responsive code)
 
@@ -322,6 +324,21 @@ function updateRays() {
 
 //------------------
 //------------------
+//SAVE/RESTORE LAYOUT
+//------------------
+//------------------
+
+// Function to save current positions
+function saveCurrentLayout() {
+    validEvents.forEach(event => {
+        event.savedX = event.x;
+        event.savedY = event.y;
+    });
+    console.log('Layout saved successfully');
+}
+
+//------------------
+//------------------
 //INITIAL FORCE SCATTER
 //------------------
 //------------------
@@ -330,6 +347,18 @@ let currentSimulation = null;
 
 // Function for scattered layout
 function applyScatteredLayout() {
+
+    if (currentLayout === 'scattered') return;
+    currentLayout = 'scattered';
+    
+    // Stop any previous simulations first
+    if (currentSimulation) {
+        currentSimulation.stop();
+    }
+    if (collisionSimulation) {
+        collisionSimulation.stop();
+    }
+
     const simulation = d3.forceSimulation(validEvents)
         .alphaDecay(0.005)
         .velocityDecay(0.8)
@@ -478,18 +507,26 @@ const centerY = periodYPositions[periodIndex];
 
 //------------------
 //------------------
-//ORIGINAL LAYOUT FUNCTION
+//ORIGINAL LAYOUT FUNCTION / RESTORE
 //------------------
 //------------------
 
 
-function applyOriginalLayout() {
+function restoreLayout() {
+    if (currentLayout === 'restored') return;
+    
+    // Stop ALL simulations
     if (currentSimulation) {
         currentSimulation.stop();
+        currentSimulation = null;
     }
     if (collisionSimulation) {
         collisionSimulation.stop();
     }
+
+    // Hide rays during transition
+    raysGroup.transition().duration(200)
+        .style("opacity", 0);
 
     // Reset positions to saved state
     validEvents.forEach(event => {
@@ -508,10 +545,13 @@ function applyOriginalLayout() {
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
 
-    // Update other elements after transition
+    // Update other elements after transition and show rays again
     setTimeout(() => {
         updateLinks();
         updateRays();
+        // Fade rays back in
+        raysGroup.transition().duration(500)
+            .style("opacity", 1);
     }, 1000);
 
     currentLayout = 'restored';
@@ -777,6 +817,14 @@ manifestoCircles
 updateAllElements();
 
 
+//------------------
+//------------------
+//SAVE CURRENT LAYOUT
+//------------------
+//------------------
+
+saveCurrentLayout();
+
 
 //------------------
 //------------------
@@ -805,25 +853,26 @@ function handleCaptionStep(stepIndex) {
                 .duration(1000)
                 .call(zoom.transform, d3.zoomIdentity);
 
-            // applyScatteredLayout();
+            applyScatteredLayout();
                 break;
 
         case 1:
           
             removeAllLabels();
+            restoreLayout();
             // applyOriginalLayout();
                 break;
         
         case 2:
 
-        //HEre I want to restore the original layout
-
-            // Caption 4: Focus on Timothy McVeigh (Oklahoma City)
-            const mcveigh = validEvents.find(e => e.perpetrator.name.includes('McVeigh'));
-            if (mcveigh) {
+        
+    
+        // Focus on Timothy McVeigh (Oklahoma City) 
+        const mcveigh = validEvents.find(e => e.perpetrator.name.includes('McVeigh'));
+        if (mcveigh) {
                 addLabelsToNodes(['McVeigh']);
-                zoomToLocation(mcveigh.x, mcveigh.y, 2.5);
-            }
+                zoomToLocation(mcveigh.savedX, mcveigh.savedY, 2.5);
+        }
             break;
             
         case 3:

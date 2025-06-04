@@ -424,3 +424,147 @@ STACKED BAR CHART
   position: relative;
   text-align: center;
 }
+
+
+
+/*
+--------------------
+--------------------
+SECTION 5 - TIMELINE
+--------------------
+--------------------*/
+
+#section-5 {
+  background-color: #000;
+  color: white;
+  min-height: 100vh;
+  max-height: 100vh;
+  position: relative;
+}
+
+.timeline-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.timeline-controls {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.timeline-controls h2 {
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-size: 1.8rem;
+  color: white;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: normal;
+  color: white;
+  font-size: 0.9rem;  
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.range-slider {
+  position: relative;
+  display: flex;
+  gap: 10px;
+}
+
+.range-slider input[type="range"] {
+  width: 100%;
+  background: #333;
+  border-radius: 5px;
+  outline: none;
+  height: 6px;
+}
+
+.range-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+
+.range-display {
+  font-size: 0.8rem;
+  color: #ccc;
+  text-align: center;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+#timeline-visualization {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  position: relative;
+}
+
+/* Filter buttons */
+#reset-filters, #apply-filters {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+#reset-filters {
+  background: #666;
+  color: white;
+}
+
+#apply-filters {
+  background: #fff;
+  color: #000;
+}
+
+#reset-filters:hover {
+  background: #777;
+}
+
+#apply-filters:hover {
+  background: #eee;
+}

@@ -9,6 +9,7 @@
   <script defer src="beeswarm.js"></script>
   <script defer src="main.js"></script>
   <script defer src="stackedbar.js"></script>
+  <script defer src="timeline.js"></script>
 
 </head>
 
@@ -169,6 +170,93 @@
     </div>
   </div>
 
+<!-- SECTION 5 -->  
+
+<div class="section" id="section-5">
+  <div class="timeline-container">
+    <div class="timeline-controls">
+      <h2>Explore the data below</h2>
+      
+      <div class="filter-grid">
+        <!-- Date Range Filter -->
+        <div class="filter-group">
+          <label>Date Range</label>
+          <div class="range-slider">
+            <input type="range" id="start-year" min="1978" max="2025" value="1978">
+            <input type="range" id="end-year" min="1978" max="2025" value="2025">
+          </div>
+          <div class="range-display">
+            <span id="start-year-display">1978</span> - <span id="end-year-display">2025</span>
+          </div>
+        </div>
+
+        <!-- Casualties Filter -->
+        <div class="filter-group">
+          <label>Minimum Casualties</label>
+          <div class="range-slider">
+            <input type="range" id="casualties-slider" min="0" max="200" value="0">
+          </div>
+          <div class="range-display">
+            <span id="casualties-display">0</span>+ casualties
+          </div>
+        </div>
+
+        <!-- Connections Filter -->
+        <div class="filter-group">
+          <label>Number of Connections</label>
+          <div class="range-slider">
+            <input type="range" id="connections-slider" min="0" max="20" value="0">
+          </div>
+          <div class="range-display">
+            <span id="connections-display">0</span>+ connections
+          </div>
+        </div>
+
+        <!-- Livestream & Manifesto Filters -->
+        <div class="filter-group">
+          <label>Special Characteristics</label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="filter-livestream" checked>
+              <span>Livestreamed</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="filter-manifesto" checked>
+              <span>Published Manifesto</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="filter-neither" checked>
+              <span>Neither</span>
+            </label>
+          </div>
+        </div>
+       
+       
+        <!-- Zoom -->
+        <div class="filter-group">
+          <label>Timeline Stretch</label>
+          <div class="range-slider">
+            <input type="range" id="time-stretch-slider" min="1" max="5" step="0.5" value="2">
+          </div>
+          <div class="range-display">
+            <span id="time-stretch-display">2x</span> spread
+          </div>
+        </div>
+
+        <!-- Reset and Apply -->
+        <div class="filter-group">
+          <button id="reset-filters">Reset All</button>
+          <button id="apply-filters">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="timeline-visualization"></div>
+  </div>
+</div>
+
+
+  
   <!-- OUTRO SECTION -->
 
   <div class="outro">
