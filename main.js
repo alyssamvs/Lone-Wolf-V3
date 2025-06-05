@@ -268,24 +268,35 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Scroll handler with debounce
   const handleScroll = debounce(function() {
-    const viewportMiddle = window.innerHeight / 2;
+    // Get section 2 bounds
+    const section2Rect = section2.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Add/remove body class based on section 2 visibility for CSS clipping
+    const section2IsVisible = section2Rect.bottom > 50 && section2Rect.top < viewportHeight - 50;
+    if (section2IsVisible) {
+        document.body.classList.add('in-section-2');
+    } else {
+        document.body.classList.remove('in-section-2');
+    }
+    
+    // Check caption positioning
+    const viewportMiddle = viewportHeight / 2;
     const secondCaptionRect = secondCaption.getBoundingClientRect();
     const captionCenter = (secondCaptionRect.top + secondCaptionRect.bottom) / 2;
     
     const triggerDistance = isMobile ? 250 : 250;
     const isCaptionNearMiddle = Math.abs(captionCenter - viewportMiddle) < triggerDistance;
     
-    const section2Bottom = section2.getBoundingClientRect().bottom;
-    const isPastSection2 = section2Bottom < 0;
+    const isPastSection2 = section2Rect.bottom < 0;
     
     // Check if section 3 is 20% visible
     const section3 = document.getElementById('section-3');
     const section3Rect = section3.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
     const section3VisibleHeight = Math.max(0, Math.min(section3Rect.bottom, viewportHeight) - Math.max(section3Rect.top, 0));
     const section3VisibilityPercent = (section3VisibleHeight / viewportHeight) * 100;
     
-    if (isCaptionNearMiddle && !isPastSection2 && section3VisibilityPercent < 20) {
+    if (isCaptionNearMiddle && !isPastSection2 && section3VisibilityPercent < 20 && section2IsVisible) {
         showHeadlines();
     } else {
         hideHeadlines();
