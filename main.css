@@ -271,7 +271,7 @@ BEESWARM VISUALIZATION
   display: flex;
   flex-direction: row;
   position: relative;
-  min-height: 1000vh; /* Make it tall enough for scrolling */
+  min-height: 800vh; /* Make it tall enough for scrolling */
 }
 
 #section-4 .captions {

@@ -896,7 +896,7 @@ function handleCaptionStep(stepIndex) {
         case 0:
             // Caption 1: Overview - zoom out to see everything
                 removeAllLabels();
-
+                clearAllHighlights();
                 d3.select("svg").transition()
                 .duration(1000)
                 .call(zoom.transform, d3.zoomIdentity);
@@ -905,17 +905,23 @@ function handleCaptionStep(stepIndex) {
                 break;
 
         case 1:
-          
+            clearAllHighlights();
             removeAllLabels();
             restoreLayout();
-            addLabelsToNodes(['Kaczynski']);
+            setTimeout(() => {
+                const kaczynski = validEvents.find(e => e.perpetrator.name.includes('Kaczynski'));
+                if (kaczynski) {
+                        addLabelsToNodes(['Kaczynski']);
+                        zoomToLocation(kaczynski.savedX, kaczynski.savedY, 2.5);
+                }
+            }, 1000);
             
                 break;
         
         case 2:
 
         
-    
+        clearAllHighlights();
         // Focus on Timothy McVeigh (Oklahoma City) 
         const mcveigh = validEvents.find(e => e.perpetrator.name.includes('McVeigh'));
         if (mcveigh) {
@@ -925,30 +931,44 @@ function handleCaptionStep(stepIndex) {
             break;
             
         case 3:
+            clearAllHighlights();
             // Caption 2: Focus on Anders Breivik (highly influential)
             const breivik = validEvents.find(e => e.perpetrator.name.includes('Breivik'));
             if (breivik) {
                 addLabelsToNodes(['Breivik']);
                 zoomToLocation(breivik.x, breivik.y, 2.5);
+                setTimeout(() => {
+                    console.log('Highlighting connections for Breivik now!');
+                    highlightNodeConnections(breivik.perpetrator.name);
+                }, 3000);
             }
             break;
             
         case 4:
+            clearAllHighlights();
             // Caption 3: Focus on Brenton Tarrant (Christchurch shooter)
             const tarrant = validEvents.find(e => e.perpetrator.name.includes('Tarrant'));
             if (tarrant) {
                 addLabelsToNodes(['Tarrant']);
                 zoomToLocation(tarrant.x, tarrant.y, 2);
+                setTimeout(() => {
+                    highlightNodeConnections(tarrant.perpetrator.name);
+                }, 3000);
             }
             break;
             
         case 5:
+            clearAllHighlights();
             // Caption 4: Focus on Payton Gendron
             const gendron = validEvents.find(e => e.perpetrator.name.includes('Gendron'));
             if (gendron) {
                 addLabelsToNodes(['Gendron']);
                 zoomToLocation(gendron.x, gendron.y, 1.9);
+                setTimeout(() => {
+                    highlightNodeConnections(gendron.perpetrator.name);
+                }, 3000);
             }
+            
             break;
 
         case 6:
@@ -1043,6 +1063,27 @@ function removeAllLabels(labelClass = 'caption-label') {
         .duration(300)
         .style("opacity", 0)
         .remove();
+}
+
+function highlightNodeConnections(nodeName) {
+    links.transition()
+        .duration(800) // 800ms transition
+        .style("stroke-opacity", link => 
+            (link.source === nodeName || link.target === nodeName) ? 0.8 : 0.1
+        )
+        .style("stroke-width", link => 
+            (link.source === nodeName || link.target === nodeName) ? 3 : 1.5
+        )
+        .attr("marker-end", link => 
+            (link.source === nodeName || link.target === nodeName) ? "url(#arrowhead)" : null
+        );
+}
+
+// Function to immediately clear all connection highlighting
+function clearAllHighlights() {
+    links.style("stroke-opacity", 0)
+         .style("stroke-width", 1.5)
+         .attr("marker-end", null);
 }
 
    }

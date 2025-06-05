@@ -171,8 +171,9 @@ document.addEventListener('DOMContentLoaded', function() {
     headline.dataset.index = i + 1; // Store index for debugging
     
     // Set dimensions
-    headline.style.width = `${headlineWidth}px`;
-    headline.style.height = `${headlineHeight}px`;
+    const sizeMultiplier = 1 + Math.random() * 1.5; // Random between 1.0 and 1.5
+    headline.style.width = `${headlineWidth * sizeMultiplier}px`;
+    headline.style.height = `${headlineHeight * sizeMultiplier}px`;
     
     // Position headline
     headline.style.top = `${positions[i].top}%`;
@@ -277,12 +278,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const section2Bottom = section2.getBoundingClientRect().bottom;
     const isPastSection2 = section2Bottom < 0;
     
-    if (isCaptionNearMiddle && !isPastSection2) {
-      showHeadlines();
+    // Check if section 3 is 20% visible
+    const section3 = document.getElementById('section-3');
+    const section3Rect = section3.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const section3VisibleHeight = Math.max(0, Math.min(section3Rect.bottom, viewportHeight) - Math.max(section3Rect.top, 0));
+    const section3VisibilityPercent = (section3VisibleHeight / viewportHeight) * 100;
+    
+    if (isCaptionNearMiddle && !isPastSection2 && section3VisibilityPercent < 20) {
+        showHeadlines();
     } else {
-      hideHeadlines();
+        hideHeadlines();
     }
-  }, isMobile ? 50 : 50);
+}, isMobile ? 50 : 50);
   
   // Attach debounced scroll handler
   window.addEventListener('scroll', handleScroll);
