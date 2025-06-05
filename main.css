@@ -134,13 +134,6 @@
       pointer-events: none;
       z-index: 10;
       overflow: hidden;
-    /* Add clipping based on section 2 position */
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-  }
-  
-  /* Hide headlines when not in section 2 */
-  body:not(.in-section-2) .headlines-container {
-    clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%);
   }
 
     .headline {

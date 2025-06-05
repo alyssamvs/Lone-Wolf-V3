@@ -266,41 +266,56 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Scroll handler with debounce
-  const handleScroll = debounce(function() {
-    // Get section 2 bounds
-    const section2Rect = section2.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    
-    // Add/remove body class based on section 2 visibility for CSS clipping
-    const section2IsVisible = section2Rect.bottom > 50 && section2Rect.top < viewportHeight - 50;
-    if (section2IsVisible) {
-        document.body.classList.add('in-section-2');
-    } else {
-        document.body.classList.remove('in-section-2');
-    }
-    
-    // Check caption positioning
-    const viewportMiddle = viewportHeight / 2;
-    const secondCaptionRect = secondCaption.getBoundingClientRect();
-    const captionCenter = (secondCaptionRect.top + secondCaptionRect.bottom) / 2;
-    
-    const triggerDistance = isMobile ? 250 : 250;
-    const isCaptionNearMiddle = Math.abs(captionCenter - viewportMiddle) < triggerDistance;
-    
-    const isPastSection2 = section2Rect.bottom < 0;
-    
-    // Check if section 3 is 20% visible
-    const section3 = document.getElementById('section-3');
-    const section3Rect = section3.getBoundingClientRect();
-    const section3VisibleHeight = Math.max(0, Math.min(section3Rect.bottom, viewportHeight) - Math.max(section3Rect.top, 0));
-    const section3VisibilityPercent = (section3VisibleHeight / viewportHeight) * 100;
-    
-    if (isCaptionNearMiddle && !isPastSection2 && section3VisibilityPercent < 20 && section2IsVisible) {
-        showHeadlines();
-    } else {
-        hideHeadlines();
-    }
+// Scroll handler with debounce
+const handleScroll = debounce(function() {
+  // Get section 2 bounds
+  const section2Rect = section2.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  
+  // Check if section 3 is visible
+  const section3 = document.getElementById('section-3');
+  const section3Rect = section3.getBoundingClientRect();
+  const section3IsVisible = section3Rect.top < viewportHeight;
+
+  // Change container positioning based on section 3 visibility
+  if (section3IsVisible) {
+      // Make container absolute and position it at section 2's location
+      headlinesContainer.style.position = 'absolute';
+      headlinesContainer.style.top = section2Rect.top + window.scrollY + 'px';
+      headlinesContainer.style.height = section2Rect.height + 'px';
+      headlinesContainer.style.overflow = 'hidden';
+      hideHeadlines();
+      return;
+  } else {
+      // Restore fixed positioning when not in section 3
+      headlinesContainer.style.position = 'fixed';
+      headlinesContainer.style.top = '0';
+      headlinesContainer.style.height = '100vh';
+      headlinesContainer.style.overflow = 'hidden';
+  }
+  
+  // Check if section 2 is visible at all
+  const section2IsVisible = section2Rect.bottom > 0 && section2Rect.top < viewportHeight;
+  
+  // If section 2 is not visible, immediately hide headlines
+  if (!section2IsVisible) {
+      hideHeadlines();
+      return;
+  }
+  
+  // Original caption checking logic (only runs if section 2 is visible)
+  const viewportMiddle = viewportHeight / 2;
+  const secondCaptionRect = secondCaption.getBoundingClientRect();
+  const captionCenter = (secondCaptionRect.top + secondCaptionRect.bottom) / 2;
+  
+  const triggerDistance = isMobile ? 250 : 250;
+  const isCaptionNearMiddle = Math.abs(captionCenter - viewportMiddle) < triggerDistance;
+  
+  if (isCaptionNearMiddle) {
+      showHeadlines();
+  } else {
+      hideHeadlines();
+  }
 }, isMobile ? 50 : 50);
   
   // Attach debounced scroll handler
