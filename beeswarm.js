@@ -359,6 +359,9 @@ function applyScatteredLayout() {
         collisionSimulation.stop();
     }
 
+        // Remove period labels during scattered layout
+        svg.selectAll(".period-label").remove();
+
     const simulation = d3.forceSimulation(validEvents)
         .alphaDecay(0.005)
         .velocityDecay(0.8)
@@ -419,31 +422,8 @@ console.log('Created periods:', periods);
 const periodSpacing = isMobile ? 450 : 650;
 const largeClusterRadius = isMobile ? 150 : 200;
 const mediumClusterRadius = isMobile ? 100 : 120
-const smallClusterRadius = isMobile ? 40 : 60;
+const smallClusterRadius = isMobile ? 40 : 50;
 
-validEvents.forEach((event, i) => {
-  // Calculate periods backwards from maxYear (same as above)
-  const yearsFromMax = maxYear - event.date.year;
-  const period = Math.floor(yearsFromMax / 5);
-  const endYear = maxYear - period * 5;
-  const startYear = endYear - 4;
-  const periodKey = `${startYear}-${endYear}`;
-  const periodIndex = periods.indexOf(periodKey);
-    const eventsInPeriod = eventsByPeriod.get(periodKey);
-    const eventIndexInPeriod = eventsInPeriod.indexOf(event);
-    
-    // Choose cluster radius based on number of events
-    let clusterRadius;
-    if (eventsInPeriod.length >= 20) {
-        clusterRadius = largeClusterRadius;
-    } else if (eventsInPeriod.length >= 10) {
-        clusterRadius = mediumClusterRadius;
-    } else {
-        clusterRadius = smallClusterRadius;
-    }
-    
-    // Position for this period
-    const centerX = width / 2;
 
 //------------------
 //------------------
@@ -481,6 +461,32 @@ periods.forEach((periodKey, periodIndex) => {
     }
 });
 
+
+validEvents.forEach((event, i) => {
+  // Calculate periods backwards from maxYear (same as above)
+  const yearsFromMax = maxYear - event.date.year;
+  const period = Math.floor(yearsFromMax / 5);
+  const endYear = maxYear - period * 5;
+  const startYear = endYear - 4;
+  const periodKey = `${startYear}-${endYear}`;
+  const periodIndex = periods.indexOf(periodKey);
+    const eventsInPeriod = eventsByPeriod.get(periodKey);
+    const eventIndexInPeriod = eventsInPeriod.indexOf(event);
+    
+    // Choose cluster radius based on number of events
+    let clusterRadius;
+    if (eventsInPeriod.length >= 20) {
+        clusterRadius = largeClusterRadius;
+    } else if (eventsInPeriod.length >= 10) {
+        clusterRadius = mediumClusterRadius;
+    } else {
+        clusterRadius = smallClusterRadius;
+    }
+    
+    // Position for this period
+    const centerX = width / 2;
+
+
 // Then in your main positioning loop, use:
 const centerY = periodYPositions[periodIndex];
     
@@ -501,7 +507,14 @@ const centerY = periodYPositions[periodIndex];
         event.originalX = event.x;
         event.originalY = event.y;
     });
+
+
+
+
+
 });
+
+
 
 
 
@@ -549,10 +562,45 @@ function restoreLayout() {
     setTimeout(() => {
         updateLinks();
         updateRays();
+
+        
+
+
+
+
         // Fade rays back in
         raysGroup.transition().duration(500)
             .style("opacity", 1);
     }, 1000);
+
+    // Add year labels for each cluster
+console.log('Adding period labels, periods:', periods);
+periods.forEach((periodKey, periodIndex) => {
+    const centerX = width / 2 - 310;
+    const centerY = periodYPositions[periodIndex];
+    const eventsInPeriod = eventsByPeriod.get(periodKey);
+    
+    let clusterRadius;
+    if (eventsInPeriod.length >= 10) {
+        clusterRadius = largeClusterRadius;
+    } else if (eventsInPeriod.length >= 8) {
+        clusterRadius = mediumClusterRadius;
+    } else {
+        clusterRadius = smallClusterRadius;
+    }
+    
+    svg.append("text")
+        .attr("class", "period-label")
+        .attr("x", centerX + clusterRadius + 60)
+        .attr("y", centerY)
+        .attr("text-anchor", "start")
+        .attr("dominant-baseline", "middle")
+        .style("font-family", "Arial, sans-serif")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .style("fill", "#333")
+        .text(periodKey);
+});
 
     currentLayout = 'restored';
     console.log('Layout restored successfully');
@@ -833,7 +881,7 @@ saveCurrentLayout();
 //------------------
 
 // Function to zoom to a specific location
-function zoomToLocation(x, y, scale = 2, duration = 1000) {
+function zoomToLocation(x, y, scale = 2, duration = 2000) {
     d3.select("svg").transition()
         .duration(duration)
         .call(zoom.transform, d3.zoomIdentity
@@ -860,7 +908,8 @@ function handleCaptionStep(stepIndex) {
           
             removeAllLabels();
             restoreLayout();
-            // applyOriginalLayout();
+            addLabelsToNodes(['Kaczynski']);
+            
                 break;
         
         case 2:
@@ -889,7 +938,7 @@ function handleCaptionStep(stepIndex) {
             const tarrant = validEvents.find(e => e.perpetrator.name.includes('Tarrant'));
             if (tarrant) {
                 addLabelsToNodes(['Tarrant']);
-                zoomToLocation(tarrant.x, tarrant.y, 2.5);
+                zoomToLocation(tarrant.x, tarrant.y, 2);
             }
             break;
             
@@ -897,17 +946,25 @@ function handleCaptionStep(stepIndex) {
             // Caption 4: Focus on Payton Gendron
             const gendron = validEvents.find(e => e.perpetrator.name.includes('Gendron'));
             if (gendron) {
-                
-                zoomToLocation(gendron.x, gendron.y, 2.5);
+                addLabelsToNodes(['Gendron']);
+                zoomToLocation(gendron.x, gendron.y, 1.9);
             }
             break;
 
         case 6:
-            // Caption 4: Focus on Crimo
-            const henderson = validEvents.find(e => e.perpetrator.name.includes('Henderson'));
-            if (henderson) {
-                zoomToLocation(henderson.x, henderson.y, 2.5);
-            }
+            const lastPeriodIndex = periods.length - 1;
+            const centerX = width / 2;
+            const centerY = periodYPositions[lastPeriodIndex];
+            zoomToLocation(centerX, centerY, 1.7);
+            addLabelsToNodes(['Gendron', 'Henderson', 'Rupnow', 'Aldrich']);
+            break;
+
+        case 7:
+            const centerX1 = width / 2;
+            const centerY1 = periodYPositions[periods.length - 1];
+            zoomToLocation(centerX1, centerY1, 1.3);
+            zoomToLocation(centerX1, centerY1, 1.3);
+            addLabelsToNodes(['Gendron', 'Henderson', 'Rupnow', 'Aldrich','Crimo','Arda','Ryan','Hugo']);
             break;
     }
 }
@@ -915,15 +972,18 @@ function handleCaptionStep(stepIndex) {
 // Scroll handler for Section 4 captions
 function handleSection4Scroll() {
     const captions = document.querySelectorAll('#section-4 .caption');
-    const viewportMiddle = window.innerHeight / 2;
+    const viewportMiddle = window.innerHeight * 0.75;
     
-    captions.forEach((caption, index) => {
+    captions.forEach((caption) => {
         const rect = caption.getBoundingClientRect();
         const captionCenter = (rect.top + rect.bottom) / 2;
-        const isActive = Math.abs(captionCenter - viewportMiddle) < 200;
+        const isActive = Math.abs(captionCenter - viewportMiddle) < 150;
         
         if (isActive) {
-            handleCaptionStep(index);
+            const caseNumber = caption.getAttribute('data-index');
+            if (caseNumber !== null) {
+                handleCaptionStep(parseInt(caseNumber));
+            }
         }
     });
 }

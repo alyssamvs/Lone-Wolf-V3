@@ -106,11 +106,12 @@
       }
 
       .caption {
-        width: 300px;
+        width: 400px;
         padding: 1.5rem;
         background: rgba(255, 255, 255); 
         /* border-radius: 8px; */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-size: 1.1rem;
 
       }
 
@@ -270,7 +271,7 @@ BEESWARM VISUALIZATION
   display: flex;
   flex-direction: row;
   position: relative;
-  min-height: 800vh; /* Make it tall enough for scrolling */
+  min-height: 1000vh; /* Make it tall enough for scrolling */
 }
 
 #section-4 .captions {
@@ -398,12 +399,13 @@ STACKED BAR CHART
 
 #floating-image-container {
   position: absolute;
-  top: 50px; /* Adjust to position above the bar */
+  top: -60px; /* Adjust to position above the bar */
   left: 50%;
   transform: translateX(-50%);
-  width: 200px; /* Set a fixed width */
-  height: 150px; /* Set a fixed height */
+  min-width: 500px; /* Set a fixed width */
+  max-width: 600px;
 }
+
 
 .floating-image {
   position: absolute;
